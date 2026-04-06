@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>إتمام الطلب - Udream</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --black: #000000;
+      --dark-grey: #f8fafc;
+      --grey: #e5e7eb;
+      --light-grey: #4b5563;
+      --white: #1a1a1a;
+      --green: #0d9669;
+      --green-dark: #047857;
+      --green-light: rgba(13, 150, 105, 0.08);
+    }
+
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: url('background.jpeg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      color: #1a1a1a;
+      min-height: 100vh;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    .checkout-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      animation: fadeIn 0.6s ease-in;
+    }
+
+    .checkout-header {
+      text-align: center;
+      margin-bottom: 3rem;
+      animation: slideInUp 0.6s ease-out;
+    }
+
+    .checkout-header h1 {
+      font-size: 2.5rem;
+      color: var(--white);
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 4px;
+      background: var(--grey);
+      border-radius: 2px;
+      margin-top: 1rem;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--green), var(--green-dark));
+      width: 33%;
+      animation: slideInLeft 0.6s ease-out;
+    }
+
+    .checkout-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .order-section {
+      background: linear-gradient(135deg, var(--dark-grey) 0%, var(--grey) 100%);
+      padding: 2rem;
+      border-radius: 16px;
+      border: 1px solid var(--green);
+      animation: slideInLeft 0.7s ease-out;
+      box-shadow: 0 10px 40px rgba(13, 150, 105, 0.06);
+      transition: all 0.3s ease;
+    }
+
+    .order-section:hover {
+      box-shadow: 0 15px 50px rgba(13, 150, 105, 0.1);
+      transform: translateY(-5px);
+    }
+
+    .form-section {
+      background: linear-gradient(135deg, var(--dark-grey) 0%, var(--grey) 100%);
+      padding: 2rem;
+      border-radius: 16px;
+      border: 1px solid var(--green);
+      animation: slideInRight 0.7s ease-out;
+      box-shadow: 0 10px 40px rgba(13, 150, 105, 0.06);
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      color: var(--white);
+      animation: slideInUp 0.8s ease-out;
+    }
+
+    .section-title-icon {
+      font-size: 1.8rem;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .order-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+      background: rgba(13, 150, 105, 0.03);
+      border-left: 3px solid var(--green);
+      border-radius: 8px;
+      animation: slideInUp 0.6s ease-out;
+      animation-fill-mode: both;
+      transition: all 0.3s ease;
+    }
+
+    .order-item:nth-child(1) { animation-delay: 0.1s; }
+    .order-item:nth-child(2) { animation-delay: 0.2s; }
+    .order-item:nth-child(3) { animation-delay: 0.3s; }
+    .order-item:nth-child(4) { animation-delay: 0.4s; }
+    .order-item:nth-child(5) { animation-delay: 0.5s; }
+
+    .order-item:hover {
+      background: rgba(13, 150, 105, 0.12);
+      transform: translateX(5px);
+    }
+
+    .order-item-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .order-item-name {
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    .order-item-quantity {
+      font-size: 0.85rem;
+      color: var(--white);
+      display: inline-block;
+      background: var(--green);
+      color: var(--black);
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      width: fit-content;
+    }
+
+    .order-item-price {
+      font-weight: 700;
+      color: var(--green);
+      font-size: 1.1rem;
+    }
+
+    .order-total {
+      background: linear-gradient(135deg, var(--green-light), rgba(5, 150, 105, 0.06));
+      border: 2px solid var(--green);
+      padding: 1.5rem;
+      border-radius: 12px;
+      text-align: center;
+      margin-top: 1.5rem;
+      animation: slideInUp 0.8s ease-out;
+    }
+
+    .order-total-label {
+      font-size: 0.9rem;
+      color: var(--light-grey);
+      margin-bottom: 0.5rem;
+    }
+
+    .order-total-amount {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--green);
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+      animation: slideInUp 0.6s ease-out;
+      animation-fill-mode: both;
+    }
+
+    .form-group:nth-child(1) { animation-delay: 0.2s; }
+    .form-group:nth-child(2) { animation-delay: 0.3s; }
+    .form-group:nth-child(3) { animation-delay: 0.4s; }
+    .form-group:nth-child(4) { animation-delay: 0.5s; }
+    .form-group:nth-child(5) { animation-delay: 0.6s; }
+    .form-group:nth-child(6) { animation-delay: 0.7s; }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.75rem;
+      font-weight: 600;
+      color: var(--white);
+      font-size: 0.95rem;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      background: rgba(255, 255, 255, 0.8);
+      border: 2px solid var(--grey);
+      border-radius: 8px;
+      color: #1a1a1a;
+      font-family: 'Cairo', sans-serif;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-group select {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      background: rgba(255, 255, 255, 0.9) !important;
+      border: 2px solid var(--grey);
+      border-radius: 8px;
+      color: #1a1a1a !important;
+      font-family: 'Cairo', sans-serif;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+    }
+
+    .form-group select option {
+      background: #ffffff !important;
+      color: #1a1a1a !important;
+    }
+
+    .phone-input-wrapper {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.8);
+      border: 2px solid var(--grey);
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      overflow: hidden;
+    }
+
+    .phone-input-wrapper:focus-within {
+      border-color: var(--green);
+      background: rgba(13, 150, 105, 0.03);
+      box-shadow: 0 0 0 3px rgba(13, 150, 105, 0.08);
+      transform: translateY(-2px);
+    }
+
+    .phone-prefix {
+      padding: 0.875rem 1rem;
+      background: rgba(13, 150, 105, 0.08);
+      color: var(--green);
+      font-weight: 600;
+      border-right: 1px solid var(--grey);
+      font-size: 0.95rem;
+    }
+
+    .phone-input {
+      flex: 1;
+      padding: 0.875rem 1rem;
+      background: transparent;
+      border: none;
+      color: var(--white);
+      font-family: 'Cairo', sans-serif;
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    .phone-input::placeholder {
+      color: var(--light-grey);
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--green);
+      background: rgba(13, 150, 105, 0.03);
+      box-shadow: 0 0 0 3px rgba(13, 150, 105, 0.08);
+      transform: translateY(-2px);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+      line-height: 1.6;
+    }
+
+    .address-options {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .address-toggle {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      background: rgba(255, 255, 255, 0.8);
+      border: 2px solid var(--grey);
+      color: var(--light-grey);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      font-family: 'Cairo', sans-serif;
+    }
+
+    .address-toggle:hover {
+      border-color: var(--green);
+      color: var(--green);
+    }
+
+    .address-toggle.active {
+      background: var(--green);
+      color: var(--black);
+      border-color: var(--green);
+      box-shadow: 0 5px 20px rgba(13, 150, 105, 0.15);
+    }
+
+    .map-container {
+      display: block;
+      margin-top: 1rem;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 2px solid var(--green);
+      height: 400px;
+      position: relative;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    .location-info {
+      background: rgba(13, 150, 105, 0.06);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: var(--light-grey);
+      display: block;
+      border: 1px solid var(--green);
+    }
+
+    .checkout-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 2rem;
+      animation: slideInUp 0.9s ease-out;
+    }
+
+    .btn {
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Cairo', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--green), var(--green-dark));
+      color: var(--black);
+      box-shadow: 0 5px 20px rgba(13, 150, 105, 0.15);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(13, 150, 105, 0.2);
+    }
+
+    .btn-primary:active {
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--light-grey);
+      border: 2px solid var(--grey);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--green);
+      color: var(--green);
+      background: rgba(13, 150, 105, 0.03);
+    }
+
+    .trust-badges {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-top: 3rem;
+      animation: slideInUp 1s ease-out;
+    }
+
+    .badge {
+      background: linear-gradient(135deg, var(--dark-grey) 0%, var(--grey) 100%);
+      padding: 1.5rem;
+      border-radius: 12px;
+      text-align: center;
+      border: 1px solid var(--green);
+      transition: all 0.3s ease;
+      animation: fadeIn 0.6s ease-out;
+      animation-fill-mode: both;
+    }
+
+    .badge:nth-child(1) { animation-delay: 0.1s; }
+    .badge:nth-child(2) { animation-delay: 0.2s; }
+    .badge:nth-child(3) { animation-delay: 0.3s; }
+    .badge:nth-child(4) { animation-delay: 0.4s; }
+    .badge:nth-child(5) { animation-delay: 0.5s; }
+
+    .badge:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 10px 30px rgba(13, 150, 105, 0.1);
+      border-color: var(--green-dark);
+    }
+
+    .badge-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .badge-text {
+      font-size: 0.85rem;
+      color: var(--light-grey);
+      font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+      .checkout-content {
+        grid-template-columns: 1fr;
+      }
+
+      .checkout-header h1 {
+        font-size: 1.8rem;
+      }
+
+      .checkout-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .trust-badges {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .order-section,
+      .form-section {
+        padding: 1.5rem;
+      }
+    }
+  
+    /* ── Leaflet Map Styles ── */
+    .btn-locate {
+      display: block;
+      width: 100%;
+      margin-top: .5rem;
+      padding: .75rem 1rem;
+      background: linear-gradient(135deg, var(--accent, #0d9669), #047857);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Cairo', sans-serif;
+      font-size: .95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s ease;
+    }
+    .btn-locate:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(13,150,105,.2);
+    }
+    .btn-locate:active { transform: translateY(0) }
+    .btn-locate.loading {
+      opacity: .7;
+      pointer-events: none;
+    }
+    #resolved-address {
+      background: rgba(13,150,105,.06);
+      padding: .6rem .8rem;
+      border-radius: 6px;
+      border-right: 3px solid var(--accent, #0d9669);
+      line-height: 1.6;
+      font-size: .9rem;
+    }
+    /* Dark map tiles contrast fix */
+    .leaflet-tile-pane { filter: brightness(0.85) contrast(1.1) saturate(0.9); }
+    .leaflet-control-zoom a {
+      background: var(--surface, #1e1e2e) !important;
+      color: var(--text, #fff) !important;
+      border-color: var(--border, #333) !important;
+    }
+    .leaflet-control-attribution { display: none !important; }
+
+  </style>
+
+  <!-- Leaflet Map (FREE - no API key needed) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+  <div class="checkout-container">
+    <div class="checkout-header">
+      <h1>إتمام الطلب</h1>
+      <div class="progress-bar">
+        <div class="progress-fill"></div>
+      </div>
+    </div>
+
+    <div class="checkout-content">
+      <!-- Order Summary -->
+      <div class="order-section">
+        <div class="section-title">
+          <span class="section-title-icon">🛒</span>
+          <span>ملخص الطلب</span>
+        </div>
+        <div id="order-items"></div>
+        <div class="order-total">
+          <div class="order-total-label">إجمالي الطلب</div>
+          <div class="order-total-amount"><span id="order-total">0.00</span> ر.س</div>
+        </div>
+      </div>
+
+      <!-- Checkout Form -->
+      <div class="form-section">
+        <form id="checkout-form">
+          <div class="section-title">
+            <span class="section-title-icon">✏️</span>
+            <span>بيانات الشحن</span>
+          </div>
+
+          <div class="form-group">
+            <label for="name">الاسم الكامل</label>
+            <input type="text" id="name" placeholder="أدخل اسمك الكامل" required>
+          </div>
+
+          <div class="form-group">
+            <label for="email">البريد الإلكتروني</label>
+            <input type="email" id="email" placeholder="example@email.com" required>
+          </div>
+
+          <div class="form-group">
+            <label for="phone">رقم الهاتف</label>
+            <div class="phone-input-wrapper">
+              <span class="phone-prefix">+966</span>
+              <input type="tel" id="phone" class="phone-input" placeholder="5XXXXXXXX" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>العنوان التفصيلي</label>
+            <textarea id="address" style="display:none"></textarea>
+                      <div class="map-container" id="map-container">
+            <div id="map"></div>
+          </div>
+          <button type="button" class="btn-locate" id="btn-locate" onclick="detectMyLocation()">
+            📍 تحديد موقعي تلقائياً
+          </button>
+          <div class="location-info" id="location-info" style="display:block">
+            <div style="margin-bottom:0.75rem"><strong>📍 معلومات الموقع:</strong></div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem">
+              <div>
+                <label style="font-size:0.8rem;color:var(--green);display:block;margin-bottom:2px">رقم المبنى</label>
+                <input type="text" id="addr-building" placeholder="مثال: 3778" style="width:100%;padding:0.5rem;background:rgba(255,255,255,0.8);border:1px solid var(--grey);border-radius:6px;color:#1a1a1a;font-family:'Cairo',sans-serif;font-size:0.85rem">
+              </div>
+              <div>
+                <label style="font-size:0.8rem;color:var(--green);display:block;margin-bottom:2px">اسم الشارع</label>
+                <input type="text" id="addr-street" placeholder="مثال: شارع أنس بن مالك" style="width:100%;padding:0.5rem;background:rgba(255,255,255,0.8);border:1px solid var(--grey);border-radius:6px;color:#1a1a1a;font-family:'Cairo',sans-serif;font-size:0.85rem">
+              </div>
+              <div>
+                <label style="font-size:0.8rem;color:var(--green);display:block;margin-bottom:2px">الحي</label>
+                <input type="text" id="addr-district" placeholder="مثال: النرجس" style="width:100%;padding:0.5rem;background:rgba(255,255,255,0.8);border:1px solid var(--grey);border-radius:6px;color:#1a1a1a;font-family:'Cairo',sans-serif;font-size:0.85rem">
+              </div>
+              <div>
+                <label style="font-size:0.8rem;color:var(--green);display:block;margin-bottom:2px">المدينة</label>
+                <input type="text" id="addr-city" placeholder="مثال: الرياض" style="width:100%;padding:0.5rem;background:rgba(255,255,255,0.8);border:1px solid var(--grey);border-radius:6px;color:#1a1a1a;font-family:'Cairo',sans-serif;font-size:0.85rem">
+              </div>
+              <div style="grid-column:1/-1">
+                <label style="font-size:0.8rem;color:var(--green);display:block;margin-bottom:2px">الرمز البريدي</label>
+                <input type="text" id="addr-postcode" placeholder="مثال: 13327" style="width:100%;padding:0.5rem;background:rgba(255,255,255,0.8);border:1px solid var(--grey);border-radius:6px;color:#1a1a1a;font-family:'Cairo',sans-serif;font-size:0.85rem">
+              </div>
+            </div>
+          </div>
+          </div>
+
+          <div class="form-group">
+            <label for="payment">طريقة الدفع</label>
+            <select id="payment" required>
+              <option value="">اختر طريقة الدفع</option>
+              <option value="card">💳 بطاقة ائتمان</option>
+              <option value="cash">💵 دفع عند الاستلام</option>
+              <option value="bank">🏦 تحويل بنكي</option>
+              <option value="wallet">📱 محفظة إلكترونية</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="notes">ملاحظات إضافية</label>
+            <textarea id="notes" placeholder="أي تعليمات خاصة..."></textarea>
+          </div>
+
+          <div class="checkout-actions">
+            <button type="submit" class="btn btn-primary">تأكيد الطلب</button>
+            <button type="button" class="btn btn-secondary" onclick="window.location.href='index.html'">العودة للمتجر</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Trust Badges -->
+    <div class="trust-badges">
+      <div class="badge">
+        <div class="badge-icon">🔒</div>
+        <div class="badge-text">دفع آمن</div>
+      </div>
+      <div class="badge">
+        <div class="badge-icon">🛡️</div>
+        <div class="badge-text">حماية البيانات</div>
+      </div>
+      <div class="badge">
+        <div class="badge-icon">✅</div>
+        <div class="badge-text">ضمان الجودة</div>
+      </div>
+      <div class="badge">
+        <div class="badge-icon">🚚</div>
+        <div class="badge-text">شحن سريع</div>
+      </div>
+      <div class="badge">
+        <div class="badge-icon">📞</div>
+        <div class="badge-text">دعم 24/7</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Check for light mode
+    if (sessionStorage.getItem('theme') === 'light') {
+      document.body.classList.add('light-mode');
+    }
+
+    // Load checkout data
+    const checkoutData = JSON.parse(sessionStorage.getItem('udream-checkout'));
+    if (!checkoutData) {
+      alert('لم يتم العثور على بيانات الطلب. يرجى العودة للصفحة الرئيسية.');
+      window.location.href = 'index.html';
+      throw new Error('No checkout data');  // Stop execution so page doesn't crash
+    }
+
+    // Populate order items
+    const orderItems = document.getElementById('order-items');
+    const orderTotal = document.getElementById('order-total');
+
+    checkoutData.items.forEach((item, index) => {
+      const itemTotal = parseFloat(item.price) * item.quantity;
+      const itemEl = document.createElement('div');
+      itemEl.className = 'order-item';
+      itemEl.innerHTML = `
+        <div class="order-item-info">
+          <span class="order-item-name">${item.name}</span>
+          <span class="order-item-quantity">×${item.quantity}</span>
+        </div>
+        <span class="order-item-price">${itemTotal.toFixed(2)} ر.س</span>
+      `;
+      orderItems.appendChild(itemEl);
+    });
+
+    orderTotal.textContent = checkoutData.total.toFixed(2);
+
+    // Map variables (Leaflet)
+    let map = null;
+    let marker = null;
+    let selectedLocation = null;
+    const addressTextarea  = document.getElementById('address');
+    const mapContainer     = document.getElementById('map-container');
+    const locationInfo     = document.getElementById('location-info');
+    // National address fields
+    const addrBuilding   = document.getElementById('addr-building');
+    const addrStreet     = document.getElementById('addr-street');
+    const addrDistrict   = document.getElementById('addr-district');
+    const addrCity       = document.getElementById('addr-city');
+    const addrPostcode   = document.getElementById('addr-postcode');
+
+    // Sync editable fields → hidden textarea on any change
+    [addrBuilding, addrStreet, addrDistrict, addrCity, addrPostcode].forEach(el => {
+      el.addEventListener('input', syncAddressFields);
+    });
+    function syncAddressFields() {
+      const parts = [
+        addrBuilding.value, addrStreet.value, addrDistrict.value,
+        addrCity.value, addrPostcode.value
+      ].filter(Boolean);
+      addressTextarea.value = parts.join(' / ');
+    }
+
+    // Phone input validation
+    const phoneInput = document.getElementById('phone');
+    phoneInput.addEventListener('input', (e) => {
+      // Remove any non-numeric characters
+      let value = e.target.value.replace(/\D/g, '');
+      
+      // Ensure it starts with 5
+      if (value.length > 0 && !value.startsWith('5')) {
+        value = '5' + value.replace(/^5/, '');
+      }
+      
+      // Limit to 9 digits (Saudi mobile number format)
+      if (value.length > 9) {
+        value = value.substring(0, 9);
+      }
+      
+      e.target.value = value;
+    });
+
+    // Prevent pasting invalid content
+    phoneInput.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const pasted = (e.clipboardData || window.clipboardData).getData('text');
+      const cleaned = pasted.replace(/\D/g, '');
+      if (cleaned.startsWith('5') || cleaned.length === 0) {
+        phoneInput.value = cleaned.substring(0, 9);
+      }
+    });
+    document.getElementById('checkout-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const phoneNumber = '+966' + document.getElementById('phone').value;
+
+      const formData = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        phone: phoneNumber,
+        address: document.getElementById('address').value,
+        payment: document.getElementById('payment').value,
+        notes: document.getElementById('notes').value,
+        order: checkoutData,
+        orderDate: new Date().toLocaleString('ar-SA')
+      };
+
+      console.log('Order submitted:', formData);
+
+      const paymentMethod = {
+        'card': 'بطاقة ائتمان',
+        'cash': 'دفع عند الاستلام',
+        'bank': 'تحويل بنكي',
+        'wallet': 'محفظة إلكترونية'
+      }[formData.payment];
+
+      alert(`شكراً لك ${formData.name}! 
+
+✅ تم استلام طلبك بنجاح
+
+📋 تفاصيل الطلب:
+• المجموع: ${checkoutData.total.toFixed(2)} ر.س
+• عدد المنتجات: ${checkoutData.items.length}
+• طريقة الدفع: ${paymentMethod}
+
+📱 سنتصل بك على الرقم ${formData.phone} خلال 24 ساعة`);
+
+      sessionStorage.removeItem('udream-checkout');
+      localStorage.removeItem('udream-cart');
+      setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+    });
+  
+
+    // ── Initialize Leaflet Map ──────────────────────────────
+    function initLeafletMap() {
+      // Default: Riyadh
+      const defaultLat = 24.7136;
+      const defaultLng = 46.6753;
+
+      map = L.map('map', {
+        center: [defaultLat, defaultLng],
+        zoom: 13,
+        zoomControl: true,
+      });
+
+      // OpenStreetMap tiles (100% free)
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+      }).addTo(map);
+
+      // Custom green marker
+      const greenIcon = L.divIcon({
+        className: '',
+        html: '<div style="width:30px;height:30px;background:linear-gradient(135deg,#0d9669,#047857);border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid white;box-shadow:0 3px 10px rgba(0,0,0,.3)"></div>',
+        iconSize: [30, 30],
+        iconAnchor: [15, 30],
+      });
+
+      // Place draggable marker
+      marker = L.marker([defaultLat, defaultLng], {
+        draggable: true,
+        icon: greenIcon,
+      }).addTo(map);
+
+      selectedLocation = { lat: defaultLat, lng: defaultLng };
+      reverseGeocode(defaultLat, defaultLng);
+
+      // Click map → move marker
+      map.on('click', (e) => {
+        const { lat, lng } = e.latlng;
+        marker.setLatLng([lat, lng]);
+        selectedLocation = { lat, lng };
+        reverseGeocode(lat, lng);
+      });
+
+      // Drag marker
+      marker.on('dragend', () => {
+        const { lat, lng } = marker.getLatLng();
+        selectedLocation = { lat, lng };
+        reverseGeocode(lat, lng);
+      });
+
+      // Auto-detect location on first load
+      detectMyLocation();
+
+      // Fix Leaflet rendering glitch when container was hidden
+      setTimeout(() => map.invalidateSize(), 200);
+    }
+
+    // ── Detect GPS Location ─────────────────────────────────
+    function detectMyLocation() {
+      const btn = document.getElementById('btn-locate');
+      if (!navigator.geolocation) {
+        alert('المتصفح لا يدعم تحديد الموقع');
+        return;
+      }
+
+      if (btn) { btn.classList.add('loading'); btn.textContent = '⏳ جاري تحديد موقعك...'; }
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+
+          if (map && marker) {
+            map.setView([lat, lng], 16);
+            marker.setLatLng([lat, lng]);
+          }
+          selectedLocation = { lat, lng };
+          reverseGeocode(lat, lng);
+
+          if (btn) { btn.classList.remove('loading'); btn.textContent = '📍 تحديد موقعي تلقائياً'; }
+        },
+        (err) => {
+          console.warn('Geolocation error:', err.message);
+          if (btn) { btn.classList.remove('loading'); btn.textContent = '📍 تحديد موقعي تلقائياً'; }
+
+          if (err.code === 1) {
+            alert('يرجى السماح بالوصول للموقع من إعدادات المتصفح ثم حاول مرة أخرى');
+          } else {
+            alert('تعذر تحديد الموقع. يمكنك الضغط على الخريطة لاختيار الموقع يدوياً');
+          }
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    }
+
+    // ── Reverse Geocoding (Nominatim — FREE) ────────────────
+    // Converts lat/lng → real street address
+    let geocodeTimer = null;
+    function reverseGeocode(lat, lng) {
+      // Cancel any pending request
+      clearTimeout(geocodeTimer);
+      geocodeTimer = setTimeout(async () => {
+        try {
+          const url = 'https://nominatim.openstreetmap.org/reverse?format=json'
+            + '&lat=' + lat + '&lon=' + lng
+            + '&accept-language=ar'
+            + '&addressdetails=1'
+            + '&zoom=18';
+
+          const res = await fetch(url, {
+            headers: { 'User-Agent': 'UDreamStore/1.0' }
+          });
+          const data = await res.json();
+
+          if (data && data.display_name) {
+            const addr = data.address || {};
+            console.log('Nominatim full address data:', JSON.stringify(addr, null, 2));
+
+            // Clean house number — strip "No." / "No " prefixes
+            let houseNo = addr.house_number || '';
+            houseNo = houseNo.replace(/^No\.?\s*/i, '').trim();
+
+            const street = addr.road || addr.pedestrian || addr.street || '';
+            const district = addr.neighbourhood || addr.suburb || addr.quarter || addr.hamlet || '';
+            const city = addr.city || addr.town || addr.village || addr.city_district || addr.county || addr.state || '';
+            const postcode = addr.postcode || '';
+
+            // Fill all fields from map
+            addrBuilding.value = houseNo;
+            addrStreet.value = street;
+            addrDistrict.value = district;
+            addrCity.value = city;
+            addrPostcode.value = postcode;
+
+            // Sync to hidden textarea
+            syncAddressFields();
+
+          } else {
+            addrBuilding.value = '';
+            addrStreet.value = '';
+            addrDistrict.value = '';
+            addrCity.value = '';
+            addrPostcode.value = '';
+            addressTextarea.value = '';
+          }
+        } catch (e) {
+          console.warn('Reverse geocoding failed:', e);
+        }
+      }, 300);
+    }
+
+    // Auto-initialize the map on page load
+    initLeafletMap();
+
+</script>
+</body>
+</html>

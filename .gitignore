@@ -1,0 +1,29 @@
+# Backup folders
+backup_/
+backup_original/
+backup_v2/
+
+# System files
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Editor files
+*.swp
+*.swo
+*~
+
+# Fix/debug scripts
+fix-udream.js
+fix-map.js
+fix-checkout.js
+FIXES.md
+GOOGLE_MAPS_SETUP.md
+
+# Old/duplicate files
+checkout.backup.html
+index (1).html
+background-dark.jpeg
+
+# Screenshots
+Screenshot*.png

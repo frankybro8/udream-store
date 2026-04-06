@@ -1,0 +1,240 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Udream - إكسسوارات إلكترونيات وغرف</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <button class="btn btn-secondary cart-btn" id="open-cart">🛒 <span id="cart-count">0</span></button>
+      <nav class="nav-links">
+        <a href="#products">تسوق</a>
+        <a href="#features">لماذا Udream</a>
+        <a href="#support">الدعم</a>
+        <a href="#contact">اتصل بنا</a>
+      </nav>
+      <a href="#home" class="brand"><img src="logo-removebg-preview.png" alt="Udream" /></a>
+      <button class="btn btn-primary" id="open-chat">دردش معنا</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <span class="eyebrow">متجر إلكترونيات Udream</span>
+          <h1>إكسسوارات تقنية جاهزة للغرف للهواتف، الحواسيب، والمساحات الإبداعية.</h1>
+          <p>اكتشف شاحنات فاخرة، إضاءة، سماعات لاسلكية، أدوات مكتب، وأساسيات محمولة مصممة للغرف الحديثة، إعدادات الألعاب، والحياة التقنية اليومية.</p>
+          <div class="hero-actions">
+            <a href="#products" class="btn btn-primary">تصفح الأكثر مبيعاً</a>
+            <a href="#support" class="btn btn-secondary">خدمة العملاء</a>
+          </div>
+          <div class="trust-pills">
+            <span>شحن مجاني للطلبات فوق 250 ر.س</span>
+            <span>إرجاع خلال 30 يوم</span>
+            <span>دفع آمن</span>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="hero-card">
+            <img src="background.jpeg" alt="إكسسوارات إلكترونيات" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="feature-strip" id="features">
+      <div class="container feature-grid">
+        <div class="feature-item">
+          <h3>إكسسوارات مختارة</h3>
+          <p>غطاءات هواتف عالية الجودة، منظمات مكتب، إضاءة، وملحقات حاسوب مختارة للأداء والأناقة.</p>
+        </div>
+        <div class="feature-item">
+          <h3>توصيل سريع</h3>
+          <p>شحن سريع حتى يصل تحديث غرفتك عندما تحتاجه.</p>
+        </div>
+        <div class="feature-item">
+          <h3>دعم دائم</h3>
+          <p>دردش مع مساعد المتجر في أي وقت للحصول على مساعدة في اختيار الجهاز المثالي.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="products" id="products">
+      <div class="container section-header">
+        <div>
+          <span class="eyebrow">مجموعة مميزة</span>
+          <h2>أفضل الاختيارات لإعدادات الغرف والتقنية المحمولة</h2>
+        </div>
+        <a href="#contact" class="link-text">عرض جميع المنتجات</a>
+      </div>
+      <div class="container product-grid">
+        <article class="product-card">
+          <img src="https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=700&q=80" alt="مصباح مكتب RGB ذكي" />
+          <div class="product-copy">
+            <h3>مصباح مكتب RGB ذكي</h3>
+            <p>إضاءة محيطية للدراسة، البث، أو الاسترخاء.</p>
+            <span class="price">187 ر.س</span>
+            <button class="btn btn-primary add-to-cart" data-product="Smart RGB Desk Lamp" data-price="187">أضف إلى السلة</button>
+          </div>
+        </article>
+        <article class="product-card">
+          <img src="https://images.unsplash.com/photo-1519241047957-be31d7379a5d?auto=format&fit=crop&w=700&q=80" alt="سماعات لاسلكية" />
+          <div class="product-copy">
+            <h3>سماعات لاسلكية</h3>
+            <p>راحة عازلة للضوضاء للمكالمات، الموسيقى، والألعاب.</p>
+            <span class="price">112 ر.س</span>
+            <button class="btn btn-primary add-to-cart" data-product="Wireless Earbuds" data-price="112">أضف إلى السلة</button>
+          </div>
+        </article>
+        <article class="product-card">
+          <img src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=700&q=80" alt="محطة شحن شاملة" />
+          <div class="product-copy">
+            <h3>محطة شحن شاملة</h3>
+            <p>شحن الهواتف، الساعات، والسماعات من قاعدة أنيقة واحدة.</p>
+            <span class="price">150 ر.س</span>
+            <button class="btn btn-primary add-to-cart" data-product="All-in-one Charging Dock" data-price="150">أضف إلى السلة</button>
+          </div>
+        </article>
+        <article class="product-card">
+          <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=700&q=80" alt="أدوات مكتب زخرفية" />
+          <div class="product-copy">
+            <h3>مجموعة منظم مكتب</h3>
+            <p>حافظ على الكابلات، التحكمات، والإكسسوارات مرتبة وجاهزة.</p>
+            <span class="price">94 ر.س</span>
+            <button class="btn btn-primary add-to-cart" data-product="Desk Organizer Set" data-price="94">أضف إلى السلة</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="support" id="support">
+      <div class="container support-grid">
+        <div class="support-copy">
+          <span class="eyebrow">خدمة العملاء</span>
+          <h2>دردش مع مساعد Udream</h2>
+          <p>تحتاج مساعدة في اختيار الجهاز المناسب، تتبع طلب، أو تخصيص إعداد؟ استخدم الدردشة المدمجة للدعم السريع.</p>
+          <button class="btn btn-primary" id="open-chat-2">افتح الدردشة</button>
+        </div>
+        <div class="support-card">
+          <div class="chat-preview">
+            <div class="chat-message user">مرحبا، أريد حل شحن لمكتبي.</div>
+            <div class="chat-message bot">بالتأكيد! يمكنني اقتراح محطة شحن مدمجة وحلول إدارة كابلات صديقة للغرف.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="newsletter" id="contact">
+      <div class="container newsletter-panel">
+        <div>
+          <span class="eyebrow">عرض خاص 🎁</span>
+          <h2>سجّل الآن واحصل على كوبون خصم 5% فوري!</h2>
+          <p style="color:#4b5563;margin:0.5rem 0 0;font-size:0.95rem;">عروض حصرية، وصول مبكر للمنتجات الجديدة، ونصائح تقنية مجانية مباشرة في بريدك 🚀</p>
+        </div>
+        <form class="newsletter-form">
+          <input type="email" placeholder="عنوان بريدك الإلكتروني" aria-label="عنوان البريد الإلكتروني" required />
+          <button class="btn btn-primary" type="submit">🎉 احصل على الخصم</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-info">
+        <h3>Udream</h3>
+        <p>إكسسوارات إلكترونيات وعروض للحديثة والرقمية وإلكترونيات والجوالات الجديدة، وملحقات مكتب وحلول إدارة الكابلات للمحترفين وهواة التقنية.</p>
+        <div class="social-links">
+          <a href="https://www.instagram.com/udream.sa?igsh=MXR2M3AzZmVpaG8xeQ==" aria-label="إنستغرام" title="إنستغرام" target="_blank">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+              <path d="m16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/>
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+            </svg>
+          </a>
+          <a href="https://www.threads.com/@udream.sa" aria-label="ثريدز" title="إنستغرام ثريدز" target="_blank">
+            <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor">
+              <title>Threads</title>
+              <path d="M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.472 12.01v-.017c.03-3.579.879-6.43 2.525-8.482C5.845 1.205 8.6.024 12.18 0h.014c2.746.02 5.043.725 6.826 2.098 1.677 1.29 2.858 3.13 3.509 5.467l-2.04.569c-1.104-3.96-3.898-5.984-8.304-6.015-2.91.022-5.11.936-6.54 2.717C4.307 6.504 3.616 8.914 3.589 12c.027 3.086.718 5.496 2.057 7.164 1.43 1.783 3.631 2.698 6.54 2.717 2.623-.02 4.358-.631 5.8-2.045 1.647-1.613 1.618-3.593 1.09-4.798-.31-.71-.873-1.3-1.634-1.75-.192 1.352-.622 2.446-1.284 3.272-.886 1.102-2.14 1.704-3.73 1.79-1.202.065-2.361-.218-3.259-.801-1.063-.689-1.685-1.74-1.752-2.964-.065-1.19.408-2.285 1.33-3.082.88-.76 2.119-1.207 3.583-1.291a13.853 13.853 0 0 1 3.02.142c-.126-.742-.375-1.332-.75-1.757-.513-.586-1.308-.883-2.359-.89h-.029c-.844 0-1.992.232-2.721 1.32L7.734 7.847c.98-1.454 2.568-2.256 4.478-2.256h.044c3.194.02 5.097 1.975 5.287 5.388.108.046.216.094.321.142 1.49.7 2.58 1.761 3.154 3.07.797 1.82.871 4.79-1.548 7.158-1.85 1.81-4.094 2.628-7.277 2.65Zm1.003-11.69c-.242 0-.487.007-.739.021-1.836.103-2.98.946-2.916 2.143.067 1.256 1.452 1.839 2.784 1.767 1.224-.065 2.818-.543 3.086-3.71a10.5 10.5 0 0 0-2.215-.221z"/>
+            </svg>
+          </a>
+          <a href="https://x.com/udream_sa" aria-label="إكس" title="إكس (تويتر)" target="_blank">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+          </a>
+          <a href="https://tiktok.com/@udreamsocial" aria-label="تيك توك" title="تيك توك" target="_blank">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743l-.002-.001.002.001a2.895 2.895 0 0 1 3.183-4.51v-3.5a6.329 6.329 0 0 0-1.183-.11 6.44 6.44 0 1 0 6.44 6.44V8.962a8.2 8.2 0 0 0 4.245 1.136V6.687Z"/>
+            </svg>
+          </a>
+          <a href="#" aria-label="سناب شات" title="سناب شات">
+            <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor">
+              <title>Snapchat</title>
+              <path d="M12.206.793c.99 0 4.347.276 5.93 3.821.529 1.193.403 3.219.299 4.847l-.003.06c-.012.18-.022.345-.03.51.075.045.203.09.401.09.3-.016.659-.12 1.033-.301.165-.088.344-.104.464-.104.182 0 .359.029.509.09.45.149.734.479.734.838.015.449-.39.839-1.213 1.168-.089.029-.209.075-.344.119-.45.135-1.139.36-1.333.81-.09.224-.061.524.12.868l.015.015c.06.136 1.526 3.475 4.791 4.014.255.044.435.27.42.509 0 .075-.015.149-.045.225-.24.569-1.273.988-3.146 1.271-.059.091-.12.375-.164.57-.029.179-.074.36-.134.553-.076.271-.27.405-.555.405h-.03c-.135 0-.313-.031-.538-.074-.36-.075-.765-.135-1.273-.135-.3 0-.599.015-.913.074-.6.104-1.123.464-1.723.884-.853.599-1.826 1.288-3.294 1.288-.06 0-.119-.015-.18-.015h-.149c-1.468 0-2.427-.675-3.279-1.288-.599-.42-1.107-.779-1.707-.884-.314-.045-.629-.074-.928-.074-.54 0-.958.089-1.272.149-.211.043-.391.074-.54.074-.374 0-.523-.224-.583-.42-.061-.192-.09-.389-.135-.567-.046-.181-.105-.494-.166-.57-1.918-.222-2.95-.642-3.189-1.226-.031-.063-.052-.15-.055-.225-.015-.243.165-.465.42-.509 3.264-.54 4.73-3.879 4.791-4.02l.016-.029c.18-.345.224-.645.119-.869-.195-.434-.884-.658-1.332-.809-.121-.029-.24-.074-.346-.119-1.107-.435-1.257-.93-1.197-1.273.09-.479.674-.793 1.168-.793.146 0 .27.029.383.074.42.194.789.3 1.104.3.234 0 .384-.06.465-.105l-.046-.569c-.098-1.626-.225-3.651.307-4.837C7.392 1.077 10.739.807 11.727.807l.419-.015h.06z"/>
+            </svg>
+          </a>
+          <a href="mailto:contact@udream.sa" aria-label="جيميل" title="البريد الإلكتروني">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+      <div class="footer-links">
+        <h4>الروابط السريعة</h4>
+        <a href="#products">تسوق</a>
+        <a href="#support">الدعم</a>
+        <a href="#contact">اتصل بنا</a>
+        <a href="terms.html" aria-label="الشروط والأحكام">الشروط والأحكام</a>
+        <a href="privacy.html" aria-label="سياسة الخصوصية">سياسة الخصوصية</a>
+      </div>
+    </div>
+  </footer>
+
+  <button class="chat-toggle" id="chat-toggle" type="button">
+    <img src="logo-removebg-preview.png" alt="دردش معنا" />
+  </button>
+
+  <div class="chat-widget" id="chat-widget">
+    <div class="chat-header">
+      <div>
+        <span class="chat-title">🤖 مساعد Udream الذكي</span>
+        <p>مساعد ذكي لخدمة العملاء والتسوق</p>
+      </div>
+      <button aria-label="إغلاق الدردشة" id="close-chat">✕</button>
+    </div>
+    <div class="chat-body" id="chat-body">
+      <div class="chat-message bot">🤖 مرحباً بك في Udream! أنا مساعدك الذكي لإكسسوارات الإلكترونيات والغرف. كيف يمكنني مساعدتك اليوم؟ يمكنني مساعدتك في اختيار المنتجات، الإجابة على أسئلة الشحن، أو تقديم نصائح لإعداد غرفتك المثالية! 🛍️</div>
+    </div>
+    <form class="chat-input-area" id="chat-form">
+      <input type="text" id="chat-input" placeholder="اسألني عن أي شيء... أنا هنا لمساعدتك! 💬" autocomplete="off" required />
+      <button type="submit" class="btn btn-primary">إرسال</button>
+    </form>
+  </div>
+
+  <div class="cart-widget" id="cart-widget">
+    <div class="cart-header">
+      <span class="cart-title">سلة التسوق</span>
+      <button aria-label="إغلاق السلة" id="close-cart">✕</button>
+    </div>
+    <div class="cart-body" id="cart-body">
+      <p>سلتك فارغة.</p>
+    </div>
+    <div class="cart-footer">
+      <div class="cart-total">المجموع: ر.س <span id="cart-total">0.00</span></div>
+      <button class="btn btn-primary" id="checkout-btn">الدفع</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
