@@ -6,6 +6,7 @@ async function loadSiteConfig() {
     const res = await fetch('/api/site-config');
     SITE_CONFIG = await res.json();
     applyHero();
+    renderCategoryFilter();
     renderProducts();
   } catch (e) {
     console.warn('Could not load site config:', e);
@@ -29,12 +30,43 @@ function applyHero() {
   }
 }
 
+let ACTIVE_CATEGORY = 'all';
+
+function renderCategoryFilter() {
+  const container = document.getElementById('category-filter');
+  if (!container || !SITE_CONFIG) return;
+  const cats = Array.isArray(SITE_CONFIG.categories) ? SITE_CONFIG.categories : [];
+  // Only show categories that have at least one enabled product
+  const usedCats = cats.filter(c =>
+    SITE_CONFIG.products.some(p => p.enabled !== false && p.categoryId === c.id)
+  ).sort((a, b) => (a.order || 0) - (b.order || 0));
+  if (usedCats.length === 0) { container.innerHTML = ''; return; }
+  container.innerHTML = [
+    `<button class="cat-tab ${ACTIVE_CATEGORY === 'all' ? 'active' : ''}" data-cat="all">الكل</button>`,
+    ...usedCats.map(c =>
+      `<button class="cat-tab ${ACTIVE_CATEGORY === c.id ? 'active' : ''}" data-cat="${escapeAttr(c.id)}">${escapeHtml(c.name)}</button>`
+    ),
+  ].join('');
+  container.querySelectorAll('.cat-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      ACTIVE_CATEGORY = btn.dataset.cat;
+      renderCategoryFilter();
+      renderProducts();
+    });
+  });
+}
+
 function renderProducts() {
   const grid = document.getElementById('product-grid');
   if (!grid || !SITE_CONFIG || !Array.isArray(SITE_CONFIG.products)) return;
-  const items = SITE_CONFIG.products.filter(p => p.enabled !== false);
+  let items = SITE_CONFIG.products.filter(p => p.enabled !== false);
+  if (ACTIVE_CATEGORY !== 'all') {
+    items = items.filter(p => p.categoryId === ACTIVE_CATEGORY);
+  }
+  // Sort by explicit order then by array position
+  items = items.slice().sort((a, b) => (a.order || 999) - (b.order || 999));
   if (items.length === 0) {
-    grid.innerHTML = '<p style="text-align:center;color:#9ca3af;grid-column:1/-1;">لا توجد منتجات متاحة حالياً.</p>';
+    grid.innerHTML = '<p style="text-align:center;color:#9ca3af;grid-column:1/-1;">لا توجد منتجات في هذه الفئة.</p>';
     return;
   }
   grid.innerHTML = items.map(p => {

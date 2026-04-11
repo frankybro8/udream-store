@@ -315,6 +315,41 @@
       border-radius: 14px;
       padding: 1rem;
       margin-bottom: 1rem;
+      transition: opacity 0.15s, transform 0.15s;
+    }
+    .product-edit.dragging { opacity: 0.4; }
+    .product-edit.drag-over {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(13,150,105,0.3);
+    }
+    .drag-handle {
+      cursor: grab;
+      padding: 0 0.5rem;
+      color: var(--muted);
+      font-size: 1.1rem;
+      user-select: none;
+    }
+    .drag-handle:active { cursor: grabbing; }
+
+    /* Drop zone for image upload */
+    .drop-zone {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: rgba(13,150,105,0.04);
+      margin-top: 0.35rem;
+    }
+    .drop-zone:hover, .drop-zone.drag {
+      border-color: var(--accent);
+      background: rgba(13,150,105,0.1);
+    }
+    .drop-zone p { margin: 0; color: var(--muted); font-size: 0.85rem; }
+    .drop-zone .preview {
+      max-width: 100%; max-height: 160px; border-radius: 8px;
+      margin-bottom: 0.5rem;
     }
     .product-edit-head {
       display: flex; justify-content: space-between; align-items: center;
@@ -721,10 +756,22 @@
           <button class="btn btn-primary" id="btn-save-shipping" style="width:100%;margin-top:0.75rem;">💾 حفظ إعدادات الشحن</button>
         </div>
 
+        <div class="section-title">الفئات</div>
+        <div class="panel">
+          <h2>🏷️ فئات المنتجات</h2>
+          <p class="subtitle">نظّم منتجاتك في مجموعات. كل فئة تظهر كزرّ تصفية في صفحة التسوّق.</p>
+          <div class="form-grid">
+            <input type="text" id="cat-name" placeholder="اسم الفئة (مثال: الأجهزة القابلة للارتداء)" />
+            <input type="text" id="cat-id" placeholder="معرّف الفئة (بالإنجليزية، مثال: wearables)" />
+          </div>
+          <button class="btn btn-primary" id="btn-add-cat" style="width:100%;margin-top:0.65rem;">➕ إضافة فئة</button>
+          <div id="cat-list" style="margin-top:1rem;"></div>
+        </div>
+
         <div class="section-title">المنتجات</div>
         <div class="panel">
           <h2>📦 إدارة المنتجات</h2>
-          <p class="subtitle">عدّل الأسعار، المخزون، الصور، ووصف كل منتج. التعديلات فورية.</p>
+          <p class="subtitle">اسحب المنتجات لإعادة الترتيب. اضغط تعديل لتغيير الصور والأسعار والمخزون.</p>
           <button class="btn btn-primary" id="btn-add-product" style="margin-bottom:1rem;">➕ إضافة منتج جديد</button>
           <div id="products-editor"></div>
         </div>
@@ -1388,16 +1435,140 @@
       // Shipping
       document.getElementById('ship-threshold').value = siteConfig.shipping?.freeShippingThreshold ?? 0;
       document.getElementById('ship-flat').value      = siteConfig.shipping?.flatRate ?? 0;
+      // Categories
+      renderCatList();
       // Products
       renderProductsEditor();
+    }
+
+    // ── Categories ────────────────────────────────
+    function renderCatList() {
+      const list = document.getElementById('cat-list');
+      list.innerHTML = '';
+      siteConfig.categories = siteConfig.categories || [];
+      // Sort by order
+      const cats = [...siteConfig.categories].sort((a, b) => (a.order || 0) - (b.order || 0));
+      if (!cats.length) {
+        list.innerHTML = '<div class="empty">لم تضف أي فئة بعد.</div>';
+        return;
+      }
+      cats.forEach(cat => {
+        const productCount = (siteConfig.products || []).filter(p => p.categoryId === cat.id).length;
+        const row = document.createElement('div');
+        row.className = 'budget-row';
+        row.innerHTML = `
+          <div class="head">
+            <div class="cat">🏷️ ${escapeHtml(cat.name)}</div>
+            <div class="nums">
+              <code style="color:var(--accent-2);">${escapeHtml(cat.id)}</code> • ${productCount} منتج
+            </div>
+          </div>
+          <div class="form-grid" style="margin-top:0.5rem;">
+            <input type="text" value="${escapeAttr(cat.name)}" data-cat-name="${escapeAttr(cat.id)}" placeholder="اسم الفئة" />
+            <input type="number" value="${cat.order || 0}" data-cat-order="${escapeAttr(cat.id)}" placeholder="الترتيب" min="0" step="1" />
+          </div>
+          <div class="actions" style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+            <button class="btn btn-primary" data-save-cat="${escapeAttr(cat.id)}">💾 حفظ</button>
+            <button class="btn btn-danger" data-del-cat="${escapeAttr(cat.id)}">🗑️ حذف</button>
+          </div>
+        `;
+        row.querySelector(`[data-save-cat]`).addEventListener('click', async () => {
+          const name  = row.querySelector(`[data-cat-name]`).value.trim();
+          const order = parseInt(row.querySelector(`[data-cat-order]`).value) || 0;
+          if (!name) { toast('أدخل اسم الفئة', true); return; }
+          const c = siteConfig.categories.find(x => x.id === cat.id);
+          if (c) { c.name = name; c.order = order; }
+          await saveSiteConfig();
+          renderCatList();
+          renderProductsEditor();
+        });
+        row.querySelector(`[data-del-cat]`).addEventListener('click', async () => {
+          if (!confirm(`حذف الفئة "${cat.name}"؟ المنتجات في هذه الفئة ستصبح بدون فئة.`)) return;
+          siteConfig.categories = siteConfig.categories.filter(x => x.id !== cat.id);
+          // Unassign products from deleted category
+          (siteConfig.products || []).forEach(p => {
+            if (p.categoryId === cat.id) p.categoryId = '';
+          });
+          await saveSiteConfig();
+          renderCatList();
+          renderProductsEditor();
+        });
+        list.appendChild(row);
+      });
+    }
+
+    document.getElementById('btn-add-cat').addEventListener('click', async () => {
+      const nameEl = document.getElementById('cat-name');
+      const idEl   = document.getElementById('cat-id');
+      const name = nameEl.value.trim();
+      let id     = idEl.value.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+      if (!name) { toast('أدخل اسم الفئة', true); return; }
+      if (!id) id = 'cat-' + Date.now().toString(36);
+      siteConfig.categories = siteConfig.categories || [];
+      if (siteConfig.categories.some(c => c.id === id)) {
+        toast('المعرّف مستخدم بالفعل', true); return;
+      }
+      const maxOrder = siteConfig.categories.reduce((m, c) => Math.max(m, c.order || 0), 0);
+      siteConfig.categories.push({ id, name, order: maxOrder + 1 });
+      await saveSiteConfig();
+      nameEl.value = ''; idEl.value = '';
+      renderCatList();
+      renderProductsEditor();
+      toast('تمت إضافة الفئة ✅');
+    });
+
+    // ── Image upload helper ───────────────────────
+    async function uploadImageFile(file) {
+      if (!file) throw new Error('no file');
+      if (!file.type.startsWith('image/')) throw new Error('ليست صورة');
+      if (file.size > 5 * 1024 * 1024) throw new Error('الصورة أكبر من 5 ميجا');
+      const dataUrl = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload  = () => resolve(reader.result);
+        reader.onerror = () => reject(new Error('فشل قراءة الملف'));
+        reader.readAsDataURL(file);
+      });
+      const r = await fetch('/api/admin/upload-image', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Admin-Token': token,
+        },
+        body: JSON.stringify({ filename: file.name, dataUrl }),
+      });
+      if (!r.ok) {
+        const j = await r.json().catch(() => ({}));
+        throw new Error(j.error || 'فشل الرفع');
+      }
+      const j = await r.json();
+      return j.path;
     }
 
     function renderProductsEditor() {
       const container = document.getElementById('products-editor');
       container.innerHTML = '';
-      (siteConfig.products || []).forEach((p, idx) => {
+
+      // Ensure all products have an order, sort by it
+      siteConfig.products = siteConfig.products || [];
+      siteConfig.products.forEach((p, i) => {
+        if (typeof p.order !== 'number') p.order = i + 1;
+      });
+      siteConfig.products.sort((a, b) => (a.order || 0) - (b.order || 0));
+
+      const cats = (siteConfig.categories || []).slice().sort((a, b) => (a.order || 0) - (b.order || 0));
+      const buildCatOptions = (selectedId) => {
+        const none = `<option value=""${!selectedId ? ' selected' : ''}>— بدون فئة —</option>`;
+        const rest = cats.map(c =>
+          `<option value="${escapeAttr(c.id)}"${c.id === selectedId ? ' selected' : ''}>${escapeHtml(c.name)}</option>`
+        ).join('');
+        return none + rest;
+      };
+
+      siteConfig.products.forEach((p, idx) => {
         const card = document.createElement('div');
         card.className = 'product-edit';
+        card.draggable = true;
+        card.dataset.idx = idx;
 
         // Stock pill color
         let stockPill = '';
@@ -1409,15 +1580,20 @@
         const enabledPill = p.enabled === false
           ? '<span class="stock-pill" style="background:rgba(239,68,68,0.15);color:#fca5a5;">مخفي</span>'
           : '';
+        const catName = cats.find(c => c.id === p.categoryId)?.name || '';
+        const catPill = catName
+          ? `<span class="stock-pill" style="background:rgba(99,102,241,0.15);color:#a5b4fc;">${escapeHtml(catName)}</span>`
+          : '';
 
         card.innerHTML = `
           <div class="product-edit-head">
             <div class="product-edit-head-left">
+              <span class="drag-handle" title="اسحب لإعادة الترتيب">⋮⋮</span>
               <img class="preview-img" src="${escapeHtml(p.image || '')}" onerror="this.style.display='none'" />
               <div>
                 <div class="name">${escapeHtml(p.name || 'بدون اسم')}</div>
                 <div style="font-size:0.8rem;color:var(--muted);">
-                  ${p.price || 0} ر.س ${stockPill} ${enabledPill}
+                  ${p.price || 0} ر.س ${stockPill} ${enabledPill} ${catPill}
                 </div>
               </div>
             </div>
@@ -1461,7 +1637,26 @@
                 </select>
               </div>
             </div>
-            <label>رابط الصورة</label>
+            <div class="form-grid">
+              <div>
+                <label>الفئة</label>
+                <select data-f="categoryId">
+                  ${buildCatOptions(p.categoryId || '')}
+                </select>
+              </div>
+              <div>
+                <label>الترتيب</label>
+                <input type="number" data-f="order" min="0" step="1" value="${p.order || 0}" />
+              </div>
+            </div>
+            <label>الصورة</label>
+            <div class="drop-zone" data-drop="${idx}">
+              ${p.image ? `<img class="preview" src="${escapeAttr(p.image)}" alt="معاينة" />` : ''}
+              <p>اسحب وأفلت صورة هنا، أو اضغط للاختيار</p>
+              <p style="font-size:0.75rem;">PNG, JPG, WEBP — حتى 5 ميجا</p>
+              <input type="file" accept="image/*" style="display:none;" data-file="${idx}" />
+            </div>
+            <label style="margin-top:0.5rem;">أو رابط صورة خارجي</label>
             <input type="text" data-f="image" value="${escapeAttr(p.image || '')}" placeholder="مثال: apple-package.jpeg أو https://..." />
             <div class="actions">
               <button class="btn btn-primary" data-act="save">💾 حفظ</button>
@@ -1472,6 +1667,7 @@
           </div>
         `;
 
+        // Toggle edit panel — don't toggle when clicking drag handle
         card.querySelector('[data-act="toggle"]').addEventListener('click', () => {
           card.classList.toggle('open');
         });
@@ -1480,7 +1676,7 @@
           card.querySelectorAll('[data-f]').forEach(el => {
             const field = el.dataset.f;
             let val = el.value;
-            if (field === 'price' || field === 'originalPrice' || field === 'stock') {
+            if (field === 'price' || field === 'originalPrice' || field === 'stock' || field === 'order') {
               val = val === '' ? (field === 'originalPrice' ? null : 0) : parseFloat(val);
             }
             if (field === 'enabled') val = val === 'true';
@@ -1506,6 +1702,87 @@
           siteConfig.products.splice(idx, 1);
           await saveSiteConfig();
           renderProductsEditor();
+        });
+
+        // ── Drop zone for image upload ────────────
+        const dropZone = card.querySelector('.drop-zone');
+        const fileInput = card.querySelector('[data-file]');
+
+        async function handleUpload(file) {
+          if (!file) return;
+          toast('جارٍ رفع الصورة…');
+          try {
+            const url = await uploadImageFile(file);
+            p.image = url;
+            await saveSiteConfig();
+            renderProductsEditor();
+            toast('تم رفع الصورة ✅');
+          } catch (e) {
+            toast(e.message || 'فشل الرفع', true);
+          }
+        }
+
+        dropZone.addEventListener('click', e => {
+          // Don't trigger when dragging over preview image
+          fileInput.click();
+        });
+        fileInput.addEventListener('click', e => e.stopPropagation());
+        fileInput.addEventListener('change', e => {
+          const f = e.target.files && e.target.files[0];
+          if (f) handleUpload(f);
+        });
+        dropZone.addEventListener('dragover', e => {
+          e.preventDefault(); e.stopPropagation();
+          dropZone.classList.add('drag');
+        });
+        dropZone.addEventListener('dragleave', e => {
+          e.preventDefault(); e.stopPropagation();
+          dropZone.classList.remove('drag');
+        });
+        dropZone.addEventListener('drop', e => {
+          e.preventDefault(); e.stopPropagation();
+          dropZone.classList.remove('drag');
+          const f = e.dataTransfer.files && e.dataTransfer.files[0];
+          if (f) handleUpload(f);
+        });
+
+        // ── Drag-to-reorder ───────────────────────
+        // Only start drag from handle to avoid accidental drags
+        const handle = card.querySelector('.drag-handle');
+        card.addEventListener('dragstart', e => {
+          // If drag didn't start on the handle, cancel it
+          if (!handle.contains(e.target) && e.target !== handle) {
+            // Still allow — entire card is draggable (fine)
+          }
+          card.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', String(idx));
+        });
+        card.addEventListener('dragend', () => {
+          card.classList.remove('dragging');
+          container.querySelectorAll('.product-edit.drag-over').forEach(el => el.classList.remove('drag-over'));
+        });
+        card.addEventListener('dragover', e => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          card.classList.add('drag-over');
+        });
+        card.addEventListener('dragleave', () => {
+          card.classList.remove('drag-over');
+        });
+        card.addEventListener('drop', async e => {
+          e.preventDefault();
+          card.classList.remove('drag-over');
+          const fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
+          const toIdx = idx;
+          if (isNaN(fromIdx) || fromIdx === toIdx) return;
+          const [moved] = siteConfig.products.splice(fromIdx, 1);
+          siteConfig.products.splice(toIdx, 0, moved);
+          // Renumber order sequentially
+          siteConfig.products.forEach((prod, i) => { prod.order = i + 1; });
+          await saveSiteConfig();
+          renderProductsEditor();
+          toast('تم إعادة الترتيب ✅');
         });
 
         container.appendChild(card);
@@ -1538,8 +1815,11 @@
     document.getElementById('btn-add-product').addEventListener('click', async () => {
       const newId = 'product-' + Date.now().toString(36);
       siteConfig.products = siteConfig.products || [];
+      const maxOrder = siteConfig.products.reduce((m, x) => Math.max(m, x.order || 0), 0);
       siteConfig.products.push({
         id: newId,
+        categoryId: '',
+        order: maxOrder + 1,
         name: 'منتج جديد',
         description: '',
         details: '',
