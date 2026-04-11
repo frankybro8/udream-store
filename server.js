@@ -116,6 +116,23 @@ function sha256(text) {
   return crypto.createHash('sha256').update(text).digest('hex');
 }
 
+function setStoredPassHash(hash) {
+  fs.writeFileSync(ADMIN_PASS_FILE, JSON.stringify({ hash }, null, 2));
+}
+
+// On boot, if ADMIN_PASSWORD env var is set, reset the stored hash to it.
+// This lets you rotate the password from the Railway dashboard without
+// logging in, and without having to SSH into the volume. Set it once,
+// redeploy, then optionally remove the env var afterward.
+if (process.env.ADMIN_PASSWORD) {
+  try {
+    setStoredPassHash(sha256(process.env.ADMIN_PASSWORD));
+    console.log('Admin password reset from ADMIN_PASSWORD env var');
+  } catch (e) {
+    console.error('Failed to apply ADMIN_PASSWORD env var:', e);
+  }
+}
+
 function getStoredPassHash() {
   try {
     return JSON.parse(fs.readFileSync(ADMIN_PASS_FILE, 'utf8')).hash;
@@ -123,10 +140,6 @@ function getStoredPassHash() {
     // Default password on first run: udream2026
     return sha256('udream2026');
   }
-}
-
-function setStoredPassHash(hash) {
-  fs.writeFileSync(ADMIN_PASS_FILE, JSON.stringify({ hash }, null, 2));
 }
 
 function defaultAdminData() {
