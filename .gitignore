@@ -43,6 +43,7 @@ yarn-error.log
 admin-data.json
 admin-views.json
 admin-pass.json
+site-config.json
 udream-admin-*.json
 
 # Claude Code worktrees / agent state

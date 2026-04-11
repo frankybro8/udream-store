@@ -1,3 +1,86 @@
+// ── Load site config (products, hero, etc.) ───────────────
+let SITE_CONFIG = null;
+
+async function loadSiteConfig() {
+  try {
+    const res = await fetch('/api/site-config');
+    SITE_CONFIG = await res.json();
+    applyHero();
+    renderProducts();
+  } catch (e) {
+    console.warn('Could not load site config:', e);
+    const grid = document.getElementById('product-grid');
+    if (grid) grid.innerHTML = '<p style="text-align:center;color:#9ca3af;grid-column:1/-1;">تعذّر تحميل المنتجات.</p>';
+  }
+}
+
+function applyHero() {
+  if (!SITE_CONFIG || !SITE_CONFIG.hero) return;
+  const h = SITE_CONFIG.hero;
+  const eyebrow  = document.getElementById('hero-eyebrow');
+  const title    = document.getElementById('hero-title');
+  const subtitle = document.getElementById('hero-subtitle');
+  const pills    = document.getElementById('hero-trust-pills');
+  if (eyebrow)  eyebrow.textContent  = h.eyebrow  || eyebrow.textContent;
+  if (title)    title.textContent    = h.title    || title.textContent;
+  if (subtitle) subtitle.textContent = h.subtitle || subtitle.textContent;
+  if (pills && Array.isArray(h.trustPills) && h.trustPills.length) {
+    pills.innerHTML = h.trustPills.map(t => `<span>${escapeHtml(t)}</span>`).join('');
+  }
+}
+
+function renderProducts() {
+  const grid = document.getElementById('product-grid');
+  if (!grid || !SITE_CONFIG || !Array.isArray(SITE_CONFIG.products)) return;
+  const items = SITE_CONFIG.products.filter(p => p.enabled !== false);
+  if (items.length === 0) {
+    grid.innerHTML = '<p style="text-align:center;color:#9ca3af;grid-column:1/-1;">لا توجد منتجات متاحة حالياً.</p>';
+    return;
+  }
+  grid.innerHTML = items.map(p => {
+    const stock = typeof p.stock === 'number' ? p.stock : null;
+    const out = stock !== null && stock <= 0;
+    const low = stock !== null && stock > 0 && stock <= 5;
+    let stockBadge = '';
+    if (out) {
+      stockBadge = '<span class="stock-badge out">نفد المخزون</span>';
+    } else if (low) {
+      stockBadge = `<span class="stock-badge low">متبقي ${stock} فقط!</span>`;
+    } else if (stock !== null) {
+      stockBadge = `<span class="stock-badge ok">متوفر (${stock})</span>`;
+    }
+    const priceBlock = p.originalPrice && p.originalPrice > p.price
+      ? `<span class="price" style="display:flex;align-items:center;gap:0.5rem;">${p.price} ر.س <span style="text-decoration:line-through;color:#9ca3af;font-size:0.85rem;font-weight:400;">${p.originalPrice} ر.س</span></span>`
+      : `<span class="price">${p.price} ر.س</span>`;
+    const btn = out
+      ? `<button class="btn btn-secondary" disabled style="opacity:0.5;cursor:not-allowed;">غير متوفر</button>`
+      : `<button class="btn btn-primary add-to-cart" data-product-id="${escapeAttr(p.id)}" data-product="${escapeAttr(p.name)}" data-price="${p.price}">أضف إلى السلة</button>`;
+    const details = p.details
+      ? `<details style="margin-top:0.5rem;"><summary style="cursor:pointer;color:#0d9669;font-size:0.85rem;">تفاصيل أكثر</summary><p style="margin-top:0.5rem;font-size:0.85rem;color:#6b7280;">${escapeHtml(p.details)}</p></details>`
+      : '';
+    return `
+      <article class="product-card">
+        <img src="${escapeAttr(p.image)}" alt="${escapeAttr(p.name)}" />
+        <div class="product-copy">
+          <h3>${escapeHtml(p.name)}</h3>
+          <p>${escapeHtml(p.description || '')}</p>
+          ${stockBadge}
+          ${priceBlock}
+          ${details}
+          ${btn}
+        </div>
+      </article>
+    `;
+  }).join('');
+}
+
+function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+function escapeAttr(s) { return escapeHtml(s); }
+
+loadSiteConfig();
+
 // ── Page view tracker (feeds admin dashboard) ──────────────
 (function trackVisit() {
   try {
@@ -219,12 +302,25 @@ function showCheckout() {
     alert('أضف منتجات للسلة أولاً!');
     return;
   }
-  // Create checkout data
+  // Attach product IDs where possible (from SITE_CONFIG) so stock can be decremented
+  const enriched = cart.map(item => {
+    const match = SITE_CONFIG && SITE_CONFIG.products
+      ? SITE_CONFIG.products.find(p => p.name === item.name)
+      : null;
+    return { ...item, id: match ? match.id : null };
+  });
   const checkoutData = {
-    items: cart,
-    total: cart.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0),
+    items: enriched,
+    total: enriched.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0),
     timestamp: new Date().toISOString()
   };
+
+  // Reserve stock on the server (fire and forget — checkout still opens immediately)
+  fetch('/api/checkout/reserve-stock', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ items: enriched }),
+  }).catch(() => {});
 
   // Store checkout data in sessionStorage for the new tab
   sessionStorage.setItem('udream-checkout', JSON.stringify(checkoutData));

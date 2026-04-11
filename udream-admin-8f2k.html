@@ -308,6 +308,38 @@
       border-color: transparent;
     }
 
+    /* Product editor cards */
+    .product-edit {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .product-edit-head {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 0.5rem; margin-bottom: 0.75rem;
+    }
+    .product-edit-head .name { font-weight: 700; font-size: 1rem; }
+    .product-edit-head .stock-pill { font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 999px; }
+    .product-edit-body { display: none; }
+    .product-edit.open .product-edit-body { display: block; margin-top: 0.75rem; }
+    .product-edit label { color: var(--muted); font-size: 0.75rem; display: block; margin-top: 0.5rem; }
+    .product-edit .form-grid { margin-top: 0; }
+    .product-edit input, .product-edit textarea { font-size: 0.85rem; padding: 0.5rem 0.75rem; }
+    .product-edit .actions { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+    .product-edit .toggle-btn {
+      background: transparent; border: 1px solid var(--border);
+      color: var(--muted); padding: 0.3rem 0.7rem; border-radius: 8px;
+      font-size: 0.75rem; cursor: pointer;
+    }
+    .product-edit .toggle-btn:hover { color: var(--text); }
+    .product-edit .preview-img {
+      width: 60px; height: 60px; border-radius: 8px; object-fit: cover;
+      border: 1px solid var(--border);
+    }
+    .product-edit-head-left { display: flex; align-items: center; gap: 0.75rem; }
+
     /* Line chart */
     .line-chart {
       width: 100%; height: 240px;
@@ -388,6 +420,14 @@
     </div>
 
     <main>
+      <!-- Section navigation -->
+      <div class="filter-tabs" id="section-nav" style="margin-bottom: 1rem;">
+        <button class="filter-tab active" data-section="overview">📊 نظرة عامة</button>
+        <button class="filter-tab" data-section="customize">🎨 تخصيص الموقع</button>
+      </div>
+
+      <div id="view-overview">
+
       <!-- Overview KPIs -->
       <div class="section-title">نظرة عامة</div>
       <div class="filter-tabs" id="kpi-filter">
@@ -637,6 +677,58 @@
           <li>🧮 حساب تكلفة الاكتساب (CAC) والعائد على الإعلان (ROAS).</li>
         </ul>
       </div>
+
+      </div><!-- /view-overview -->
+
+      <div id="view-customize" style="display:none;">
+        <div class="section-title">قسم البطل (Hero Section)</div>
+        <div class="panel">
+          <h2>🎯 النصوص الرئيسية للصفحة</h2>
+          <p class="subtitle">التعديلات تُحفظ تلقائياً وتظهر على الموقع فوراً.</p>
+          <div class="form-row">
+            <label style="color:var(--muted);font-size:0.8rem;">العبارة الصغيرة (Eyebrow)</label>
+            <input type="text" id="hero-eyebrow" />
+          </div>
+          <div class="form-row">
+            <label style="color:var(--muted);font-size:0.8rem;">العنوان الرئيسي</label>
+            <textarea id="hero-title" rows="2"></textarea>
+          </div>
+          <div class="form-row">
+            <label style="color:var(--muted);font-size:0.8rem;">النص الفرعي</label>
+            <textarea id="hero-subtitle" rows="3"></textarea>
+          </div>
+          <div class="form-row">
+            <label style="color:var(--muted);font-size:0.8rem;">علامات الثقة (سطر لكل علامة)</label>
+            <textarea id="hero-pills" rows="3" placeholder="شحن مجاني...&#10;إرجاع خلال 30 يوم&#10;دفع آمن"></textarea>
+          </div>
+          <button class="btn btn-primary" id="btn-save-hero" style="width:100%;">💾 حفظ قسم البطل</button>
+        </div>
+
+        <div class="section-title">إعدادات الشحن</div>
+        <div class="panel">
+          <h2>🚚 الشحن والتوصيل</h2>
+          <p class="subtitle">حدد حد الشحن المجاني ورسوم الشحن الثابتة.</p>
+          <div class="form-grid">
+            <div>
+              <label style="color:var(--muted);font-size:0.8rem;">حد الشحن المجاني (ر.س)</label>
+              <input type="number" id="ship-threshold" min="0" step="1" />
+            </div>
+            <div>
+              <label style="color:var(--muted);font-size:0.8rem;">رسوم الشحن الثابتة (ر.س)</label>
+              <input type="number" id="ship-flat" min="0" step="1" />
+            </div>
+          </div>
+          <button class="btn btn-primary" id="btn-save-shipping" style="width:100%;margin-top:0.75rem;">💾 حفظ إعدادات الشحن</button>
+        </div>
+
+        <div class="section-title">المنتجات</div>
+        <div class="panel">
+          <h2>📦 إدارة المنتجات</h2>
+          <p class="subtitle">عدّل الأسعار، المخزون، الصور، ووصف كل منتج. التعديلات فورية.</p>
+          <button class="btn btn-primary" id="btn-add-product" style="margin-bottom:1rem;">➕ إضافة منتج جديد</button>
+          <div id="products-editor"></div>
+        </div>
+      </div><!-- /view-customize -->
 
       <div class="foot-note">
         © 2026 Udream — منطقة خاصة. لا تشارك الرابط أو كلمة المرور.<br />
@@ -1251,6 +1343,228 @@
       })[ch]);
     }
 
+    // ══════════════════════════════════════════════════════
+    // Site customization (products, hero, shipping)
+    // ══════════════════════════════════════════════════════
+    let siteConfig = null;
+
+    async function loadSiteConfig() {
+      try {
+        const r = await fetch('/api/site-config');
+        siteConfig = await r.json();
+        renderCustomize();
+      } catch (e) {
+        console.warn('failed to load site config', e);
+      }
+    }
+
+    async function saveSiteConfig() {
+      setSync('syncing', 'جارٍ حفظ الموقع…');
+      try {
+        const r = await fetch('/api/site-config', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Admin-Token': token,
+          },
+          body: JSON.stringify(siteConfig),
+        });
+        if (!r.ok) throw new Error('save failed');
+        setSync('online', 'متزامن');
+        toast('تم تحديث الموقع ✅');
+      } catch (e) {
+        setSync('offline', 'فشل الحفظ');
+        toast('فشل الحفظ', true);
+      }
+    }
+
+    function renderCustomize() {
+      if (!siteConfig) return;
+      // Hero
+      document.getElementById('hero-eyebrow').value  = siteConfig.hero?.eyebrow  || '';
+      document.getElementById('hero-title').value    = siteConfig.hero?.title    || '';
+      document.getElementById('hero-subtitle').value = siteConfig.hero?.subtitle || '';
+      document.getElementById('hero-pills').value    = (siteConfig.hero?.trustPills || []).join('\n');
+      // Shipping
+      document.getElementById('ship-threshold').value = siteConfig.shipping?.freeShippingThreshold ?? 0;
+      document.getElementById('ship-flat').value      = siteConfig.shipping?.flatRate ?? 0;
+      // Products
+      renderProductsEditor();
+    }
+
+    function renderProductsEditor() {
+      const container = document.getElementById('products-editor');
+      container.innerHTML = '';
+      (siteConfig.products || []).forEach((p, idx) => {
+        const card = document.createElement('div');
+        card.className = 'product-edit';
+
+        // Stock pill color
+        let stockPill = '';
+        if (typeof p.stock === 'number') {
+          if (p.stock <= 0) stockPill = '<span class="stock-pill" style="background:rgba(239,68,68,0.15);color:#fca5a5;">نفد</span>';
+          else if (p.stock <= 5) stockPill = `<span class="stock-pill" style="background:rgba(245,158,11,0.15);color:#fcd34d;">متبقي ${p.stock}</span>`;
+          else stockPill = `<span class="stock-pill" style="background:rgba(13,150,105,0.15);color:var(--accent-2);">${p.stock} قطعة</span>`;
+        }
+        const enabledPill = p.enabled === false
+          ? '<span class="stock-pill" style="background:rgba(239,68,68,0.15);color:#fca5a5;">مخفي</span>'
+          : '';
+
+        card.innerHTML = `
+          <div class="product-edit-head">
+            <div class="product-edit-head-left">
+              <img class="preview-img" src="${escapeHtml(p.image || '')}" onerror="this.style.display='none'" />
+              <div>
+                <div class="name">${escapeHtml(p.name || 'بدون اسم')}</div>
+                <div style="font-size:0.8rem;color:var(--muted);">
+                  ${p.price || 0} ر.س ${stockPill} ${enabledPill}
+                </div>
+              </div>
+            </div>
+            <button class="toggle-btn" data-act="toggle">تعديل</button>
+          </div>
+          <div class="product-edit-body">
+            <div class="form-grid">
+              <div>
+                <label>الاسم</label>
+                <input type="text" data-f="name" value="${escapeAttr(p.name || '')}" />
+              </div>
+              <div>
+                <label>معرّف (ID)</label>
+                <input type="text" data-f="id" value="${escapeAttr(p.id || '')}" />
+              </div>
+            </div>
+            <label>الوصف القصير</label>
+            <input type="text" data-f="description" value="${escapeAttr(p.description || '')}" />
+            <label>التفاصيل الكاملة</label>
+            <textarea data-f="details" rows="3">${escapeHtml(p.details || '')}</textarea>
+            <div class="form-grid">
+              <div>
+                <label>السعر (ر.س)</label>
+                <input type="number" data-f="price" min="0" step="0.01" value="${p.price || 0}" />
+              </div>
+              <div>
+                <label>السعر الأصلي قبل الخصم</label>
+                <input type="number" data-f="originalPrice" min="0" step="0.01" value="${p.originalPrice || ''}" placeholder="اتركه فارغاً لعدم إظهار خصم" />
+              </div>
+            </div>
+            <div class="form-grid">
+              <div>
+                <label>المخزون (القطع المتاحة)</label>
+                <input type="number" data-f="stock" min="0" step="1" value="${p.stock ?? 0}" />
+              </div>
+              <div>
+                <label>حالة المنتج</label>
+                <select data-f="enabled">
+                  <option value="true"  ${p.enabled !== false ? 'selected' : ''}>ظاهر للعملاء</option>
+                  <option value="false" ${p.enabled === false ? 'selected' : ''}>مخفي</option>
+                </select>
+              </div>
+            </div>
+            <label>رابط الصورة</label>
+            <input type="text" data-f="image" value="${escapeAttr(p.image || '')}" placeholder="مثال: apple-package.jpeg أو https://..." />
+            <div class="actions">
+              <button class="btn btn-primary" data-act="save">💾 حفظ</button>
+              <button class="btn" data-act="stock-plus">+10 مخزون</button>
+              <button class="btn" data-act="stock-minus">-10</button>
+              <button class="btn btn-danger" data-act="delete" style="margin-inline-start:auto;">🗑️ حذف</button>
+            </div>
+          </div>
+        `;
+
+        card.querySelector('[data-act="toggle"]').addEventListener('click', () => {
+          card.classList.toggle('open');
+        });
+
+        card.querySelector('[data-act="save"]').addEventListener('click', async () => {
+          card.querySelectorAll('[data-f]').forEach(el => {
+            const field = el.dataset.f;
+            let val = el.value;
+            if (field === 'price' || field === 'originalPrice' || field === 'stock') {
+              val = val === '' ? (field === 'originalPrice' ? null : 0) : parseFloat(val);
+            }
+            if (field === 'enabled') val = val === 'true';
+            p[field] = val;
+          });
+          await saveSiteConfig();
+          renderProductsEditor();
+        });
+
+        card.querySelector('[data-act="stock-plus"]').addEventListener('click', async () => {
+          p.stock = (typeof p.stock === 'number' ? p.stock : 0) + 10;
+          await saveSiteConfig();
+          renderProductsEditor();
+        });
+        card.querySelector('[data-act="stock-minus"]').addEventListener('click', async () => {
+          p.stock = Math.max(0, (typeof p.stock === 'number' ? p.stock : 0) - 10);
+          await saveSiteConfig();
+          renderProductsEditor();
+        });
+
+        card.querySelector('[data-act="delete"]').addEventListener('click', async () => {
+          if (!confirm(`حذف المنتج "${p.name}"؟`)) return;
+          siteConfig.products.splice(idx, 1);
+          await saveSiteConfig();
+          renderProductsEditor();
+        });
+
+        container.appendChild(card);
+      });
+    }
+
+    // Escape helper for admin dashboard too
+    function escapeAttr(s) { return escapeHtml(s); }
+
+    // Save Hero
+    document.getElementById('btn-save-hero').addEventListener('click', async () => {
+      siteConfig.hero = siteConfig.hero || {};
+      siteConfig.hero.eyebrow  = document.getElementById('hero-eyebrow').value.trim();
+      siteConfig.hero.title    = document.getElementById('hero-title').value.trim();
+      siteConfig.hero.subtitle = document.getElementById('hero-subtitle').value.trim();
+      siteConfig.hero.trustPills = document.getElementById('hero-pills').value
+        .split('\n').map(s => s.trim()).filter(Boolean);
+      await saveSiteConfig();
+    });
+
+    // Save Shipping
+    document.getElementById('btn-save-shipping').addEventListener('click', async () => {
+      siteConfig.shipping = siteConfig.shipping || {};
+      siteConfig.shipping.freeShippingThreshold = parseFloat(document.getElementById('ship-threshold').value) || 0;
+      siteConfig.shipping.flatRate              = parseFloat(document.getElementById('ship-flat').value) || 0;
+      await saveSiteConfig();
+    });
+
+    // Add new product
+    document.getElementById('btn-add-product').addEventListener('click', async () => {
+      const newId = 'product-' + Date.now().toString(36);
+      siteConfig.products = siteConfig.products || [];
+      siteConfig.products.push({
+        id: newId,
+        name: 'منتج جديد',
+        description: '',
+        details: '',
+        price: 0,
+        originalPrice: null,
+        image: '',
+        stock: 0,
+        enabled: true,
+      });
+      await saveSiteConfig();
+      renderProductsEditor();
+    });
+
+    // Section navigation
+    document.querySelectorAll('#section-nav .filter-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('#section-nav .filter-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const section = tab.dataset.section;
+        document.getElementById('view-overview').style.display  = section === 'overview'  ? 'block' : 'none';
+        document.getElementById('view-customize').style.display = section === 'customize' ? 'block' : 'none';
+        if (section === 'customize' && !siteConfig) loadSiteConfig();
+      });
+    });
+
     function renderAll() {
       renderKPIs();
       renderRevChart();
@@ -1261,6 +1575,7 @@
       renderIdeas();
       renderCamps();
       runCalc();
+      loadSiteConfig();
     }
 
     // Auto-refresh every 30s to see partner's changes

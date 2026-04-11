@@ -104,6 +104,7 @@ try { fs.mkdirSync(DATA_DIR, { recursive: true }); } catch {}
 const ADMIN_DATA_FILE  = path.join(DATA_DIR, 'admin-data.json');
 const ADMIN_VIEWS_FILE = path.join(DATA_DIR, 'admin-views.json');
 const ADMIN_PASS_FILE  = path.join(DATA_DIR, 'admin-pass.json');
+const SITE_CONFIG_FILE = path.join(DATA_DIR, 'site-config.json');
 
 function sha256(text) {
   return crypto.createHash('sha256').update(text).digest('hex');
@@ -232,6 +233,164 @@ app.get('/api/admin/views', requireAdminAuth, (req, res) => {
     res.json(JSON.parse(fs.readFileSync(ADMIN_VIEWS_FILE, 'utf8')));
   } catch {
     res.json({});
+  }
+});
+
+// ═══════════════════════════════════════════════════════════
+// Site configuration (products, hero text, stock, etc.)
+// Public read, admin write.
+// ═══════════════════════════════════════════════════════════
+function defaultSiteConfig() {
+  return {
+    hero: {
+      eyebrow:  'متجر إلكترونيات Udream',
+      title:    'إكسسوارات تقنية جاهزة للغرف للهواتف، الحواسيب، والمساحات الإبداعية.',
+      subtitle: 'اكتشف شاحنات فاخرة، إضاءة، سماعات لاسلكية، أدوات مكتب، وأساسيات محمولة مصممة للغرف الحديثة، إعدادات الألعاب، والحياة التقنية اليومية.',
+      trustPills: [
+        'شحن مجاني للطلبات فوق 250 ر.س',
+        'إرجاع خلال 30 يوم',
+        'دفع آمن',
+      ],
+    },
+    shipping: {
+      freeShippingThreshold: 250,
+      flatRate: 20,
+    },
+    products: [
+      {
+        id: 'apple-package',
+        name: 'بكج ابل',
+        description: 'كيبل USB-C، كيبل Lightning، شاحن UGREEN، وهدية مجانية!',
+        details: 'يشمل البكج: كيبل USB-C أصلي، كيبل Lightning، شاحن جداري UGREEN بقوة 20 واط، وهدية مجانية مع كل طلب.',
+        price: 129,
+        originalPrice: 149,
+        image: 'apple-package .jpeg',
+        stock: 20,
+        enabled: true,
+      },
+      {
+        id: 'savings-package',
+        name: 'بكج التوفير',
+        description: 'سماعات Lenovo، حامل مغناطيسي، كيبل UGREEN، وهدية مجانية!',
+        details: 'سماعات Lenovo عالية الجودة، حامل مغناطيسي للسيارة، كيبل شحن UGREEN، مع هدية مجانية.',
+        price: 109,
+        originalPrice: 129,
+        image: 'savings-package .jpeg',
+        stock: 25,
+        enabled: true,
+      },
+      {
+        id: 'rgb-desk-lamp',
+        name: 'مصباح مكتب RGB ذكي',
+        description: 'إضاءة محيطية للدراسة، البث، أو الاسترخاء.',
+        details: 'مصباح ذكي يدعم ملايين الألوان، تحكم عبر التطبيق، ومؤقت نوم.',
+        price: 187,
+        originalPrice: null,
+        image: 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=700&q=80',
+        stock: 15,
+        enabled: true,
+      },
+      {
+        id: 'wireless-earbuds',
+        name: 'سماعات لاسلكية',
+        description: 'راحة عازلة للضوضاء للمكالمات، الموسيقى، والألعاب.',
+        details: 'سماعات بلوتوث 5.3 مع عزل ضوضاء نشط، بطارية 24 ساعة، مقاومة للماء IPX5.',
+        price: 112,
+        originalPrice: null,
+        image: 'https://images.unsplash.com/photo-1519241047957-be31d7379a5d?auto=format&fit=crop&w=700&q=80',
+        stock: 30,
+        enabled: true,
+      },
+      {
+        id: 'charging-dock',
+        name: 'محطة شحن شاملة',
+        description: 'شحن الهواتف، الساعات، والسماعات من قاعدة أنيقة واحدة.',
+        details: 'محطة شحن 3 في 1 لاسلكية، متوافقة مع iPhone وApple Watch وAirPods.',
+        price: 150,
+        originalPrice: null,
+        image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=700&q=80',
+        stock: 12,
+        enabled: true,
+      },
+      {
+        id: 'desk-organizer',
+        name: 'مجموعة منظم مكتب',
+        description: 'حافظ على الكابلات، التحكمات، والإكسسوارات مرتبة وجاهزة.',
+        details: 'مجموعة منظمات خشبية فاخرة بحامل للأقلام، هاتف، وسماعات.',
+        price: 94,
+        originalPrice: null,
+        image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=700&q=80',
+        stock: 18,
+        enabled: true,
+      },
+    ],
+  };
+}
+
+function loadSiteConfig() {
+  try {
+    const raw = JSON.parse(fs.readFileSync(SITE_CONFIG_FILE, 'utf8'));
+    const def = defaultSiteConfig();
+    return {
+      ...def,
+      ...raw,
+      hero:     { ...def.hero,     ...(raw.hero     || {}) },
+      shipping: { ...def.shipping, ...(raw.shipping || {}) },
+      products: Array.isArray(raw.products) ? raw.products : def.products,
+    };
+  } catch {
+    const def = defaultSiteConfig();
+    try { fs.writeFileSync(SITE_CONFIG_FILE, JSON.stringify(def, null, 2)); } catch {}
+    return def;
+  }
+}
+
+function saveSiteConfig(config) {
+  fs.writeFileSync(SITE_CONFIG_FILE, JSON.stringify(config, null, 2));
+}
+
+// Public: anyone can read site config (products, hero text)
+app.get('/api/site-config', (req, res) => {
+  res.json(loadSiteConfig());
+});
+
+// Admin: update site config
+app.post('/api/site-config', requireAdminAuth, (req, res) => {
+  try {
+    const incoming = req.body || {};
+    // Sanity check
+    if (incoming.products && !Array.isArray(incoming.products)) {
+      return res.status(400).json({ error: 'products must be an array' });
+    }
+    saveSiteConfig(incoming);
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: String(e) });
+  }
+});
+
+// Public: decrement stock when an order is placed
+app.post('/api/checkout/reserve-stock', (req, res) => {
+  try {
+    const items = (req.body && req.body.items) || [];
+    if (!Array.isArray(items)) return res.status(400).json({ error: 'items required' });
+    const config = loadSiteConfig();
+    const changes = [];
+    items.forEach(item => {
+      const p = config.products.find(x =>
+        x.id === item.id || x.name === item.name
+      );
+      if (p && typeof p.stock === 'number') {
+        const q = parseInt(item.quantity) || 1;
+        const newStock = Math.max(0, p.stock - q);
+        changes.push({ id: p.id, from: p.stock, to: newStock });
+        p.stock = newStock;
+      }
+    });
+    saveSiteConfig(config);
+    res.json({ success: true, changes });
+  } catch (e) {
+    res.status(500).json({ error: String(e) });
   }
 });
 
