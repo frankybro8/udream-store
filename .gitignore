@@ -27,3 +27,26 @@ background-dark.jpeg
 
 # Screenshots
 Screenshot*.png
+
+# Secrets & environment
+.env
+.env.*
+*.key
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Private admin dashboard data — NEVER commit
+admin-data.json
+admin-views.json
+admin-pass.json
+udream-admin-*.json
+
+# Claude Code worktrees / agent state
+.claude/
+
+# IDE
+.vscode/
+.idea/

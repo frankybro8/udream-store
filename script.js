@@ -1,3 +1,20 @@
+// ── Page view tracker (feeds admin dashboard) ──────────────
+(function trackVisit() {
+  try {
+    // Server-side tracking (shared between partners)
+    fetch('/api/track-view', { method: 'POST' }).catch(() => {});
+    // Local fallback if server not reachable
+    const today = new Date().toISOString().slice(0, 10);
+    const views = JSON.parse(localStorage.getItem('udream-views') || '{}');
+    views[today] = (views[today] || 0) + 1;
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 60);
+    const cutoffStr = cutoff.toISOString().slice(0, 10);
+    Object.keys(views).forEach(k => { if (k < cutoffStr) delete views[k]; });
+    localStorage.setItem('udream-views', JSON.stringify(views));
+  } catch (e) { /* ignore */ }
+})();
+
 const chatWidget = document.getElementById('chat-widget');
 const openChatButtons = [document.getElementById('open-chat'), document.getElementById('open-chat-2'), document.getElementById('chat-toggle')];
 const closeChatButton = document.getElementById('close-chat');
@@ -819,3 +836,47 @@ checkoutBtn.addEventListener('click', () => {
   }
   showCheckout();
 });
+
+// ===== Coupon Newsletter Form =====
+const couponForm = document.getElementById('coupon-form');
+if (couponForm) {
+  couponForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const emailInput = document.getElementById('coupon-email');
+    const btn = document.getElementById('coupon-btn');
+    const msg = document.getElementById('coupon-msg');
+    const email = emailInput.value.trim();
+
+    if (!email) return;
+
+    btn.disabled = true;
+    btn.textContent = '⏳ جاري الإرسال...';
+    msg.style.display = 'none';
+
+    try {
+      const res = await fetch('/api/coupon', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+
+      msg.style.display = 'block';
+      if (data.success) {
+        msg.style.color = '#0d9669';
+        msg.textContent = '🎉 ' + data.message;
+        emailInput.value = '';
+      } else {
+        msg.style.color = '#ef4444';
+        msg.textContent = data.error;
+      }
+    } catch (err) {
+      msg.style.display = 'block';
+      msg.style.color = '#ef4444';
+      msg.textContent = 'حدث خطأ، حاول مرة أخرى لاحقاً';
+    }
+
+    btn.disabled = false;
+    btn.textContent = '🎉 احصل على الخصم';
+  });
+}

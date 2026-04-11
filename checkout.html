@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
@@ -585,9 +585,21 @@
           <span>ملخص الطلب</span>
         </div>
         <div id="order-items"></div>
+        <div id="discount-row" style="display:none;justify-content:space-between;align-items:center;padding:0.75rem 1rem;margin-bottom:0.75rem;background:rgba(13,150,105,0.06);border-radius:8px;color:#0d9669;font-weight:600;">
+          <span>خصم الكوبون</span>
+          <span>- <span id="discount-amount">0.00</span> ر.س</span>
+        </div>
         <div class="order-total">
           <div class="order-total-label">إجمالي الطلب</div>
           <div class="order-total-amount"><span id="order-total">0.00</span> ر.س</div>
+        </div>
+        <div style="margin-top:1rem;">
+          <label style="font-weight:600;font-size:0.9rem;margin-bottom:0.5rem;display:block;">كود الخصم</label>
+          <div style="display:flex;gap:0.5rem;">
+            <input type="text" id="coupon-code" placeholder="أدخل كود الكوبون" style="flex:1;padding:0.75rem 1rem;border:2px solid #e5e7eb;border-radius:8px;font-family:inherit;font-size:0.95rem;text-transform:uppercase;" />
+            <button type="button" id="apply-coupon-btn" onclick="applyCoupon()" style="padding:0.75rem 1.25rem;background:#0d9669;color:white;border:none;border-radius:8px;font-family:inherit;font-weight:600;cursor:pointer;">تطبيق</button>
+          </div>
+          <p id="coupon-msg" style="display:none;margin-top:0.5rem;font-size:0.85rem;font-weight:600;"></p>
         </div>
       </div>
 
@@ -611,7 +623,7 @@
 
           <div class="form-group">
             <label for="phone">رقم الهاتف</label>
-            <div class="phone-input-wrapper">
+            <div class="phone-input-wrapper" style="direction:ltr;">
               <span class="phone-prefix">+966</span>
               <input type="tel" id="phone" class="phone-input" placeholder="5XXXXXXXX" required>
             </div>
@@ -710,11 +722,9 @@
     }
 
     // Load checkout data
-    const checkoutData = JSON.parse(sessionStorage.getItem('udream-checkout'));
+    let checkoutData = JSON.parse(sessionStorage.getItem('udream-checkout'));
     if (!checkoutData) {
-      alert('لم يتم العثور على بيانات الطلب. يرجى العودة للصفحة الرئيسية.');
-      window.location.href = 'index.html';
-      throw new Error('No checkout data');  // Stop execution so page doesn't crash
+      checkoutData = { items: [], total: 0 };
     }
 
     // Populate order items
@@ -791,6 +801,65 @@
         phoneInput.value = cleaned.substring(0, 9);
       }
     });
+        // ===== Coupon System =====
+    let appliedCoupon = null;
+    let discountAmount = 0;
+
+    async function applyCoupon() {
+      const codeInput = document.getElementById('coupon-code');
+      const msg = document.getElementById('coupon-msg');
+      const discountRow = document.getElementById('discount-row');
+      const btn = document.getElementById('apply-coupon-btn');
+      const code = codeInput.value.trim().toUpperCase();
+
+      if (!code) {
+        msg.style.display = 'block';
+        msg.style.color = '#ef4444';
+        msg.textContent = 'أدخل كود الكوبون';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = '⏳';
+
+      try {
+        const res = await fetch('/api/coupon/validate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code })
+        });
+        const data = await res.json();
+
+        msg.style.display = 'block';
+        if (data.valid) {
+          msg.style.color = '#0d9669';
+          msg.textContent = data.message;
+          appliedCoupon = code;
+          discountAmount = checkoutData.total * (data.discount / 100);
+          document.getElementById('discount-amount').textContent = discountAmount.toFixed(2);
+          discountRow.style.display = 'flex';
+          // Update total display
+          const newTotal = checkoutData.total - discountAmount;
+          orderTotal.textContent = newTotal.toFixed(2);
+          codeInput.disabled = true;
+          btn.textContent = '✅';
+          btn.style.background = '#d1fae5';
+          btn.style.color = '#0d9669';
+        } else {
+          msg.style.color = '#ef4444';
+          msg.textContent = data.error;
+          btn.textContent = 'تطبيق';
+          btn.disabled = false;
+        }
+      } catch (err) {
+        msg.style.display = 'block';
+        msg.style.color = '#ef4444';
+        msg.textContent = 'حدث خطأ، حاول مرة أخرى';
+        btn.textContent = 'تطبيق';
+        btn.disabled = false;
+      }
+    }
+
     document.getElementById('checkout-form').addEventListener('submit', (e) => {
       e.preventDefault();
 
@@ -808,6 +877,15 @@
       };
 
       console.log('Order submitted:', formData);
+
+      // Mark coupon as used if applied
+      if (appliedCoupon) {
+        fetch('/api/coupon/use', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code: appliedCoupon })
+        }).catch(err => console.error('Coupon use error:', err));
+      }
 
       const paymentMethod = {
         'card': 'بطاقة ائتمان',

@@ -76,6 +76,24 @@
       </div>
       <div class="container product-grid">
         <article class="product-card">
+          <img src="apple-package .jpeg" alt="بكج ابل" />
+          <div class="product-copy">
+            <h3>بكج ابل</h3>
+            <p>كيبل USB-C، كيبل Lightning، شاحن UGREEN، وهدية مجانية!</p>
+            <span class="price" style="display:flex;align-items:center;gap:0.5rem;">129 ر.س <span style="text-decoration:line-through;color:#9ca3af;font-size:0.85rem;font-weight:400;">149 ر.س</span></span>
+            <button class="btn btn-primary add-to-cart" data-product="بكج ابل" data-price="129">أضف إلى السلة</button>
+          </div>
+        </article>
+        <article class="product-card">
+          <img src="savings-package .jpeg" alt="بكج التوفير" />
+          <div class="product-copy">
+            <h3>بكج التوفير</h3>
+            <p>سماعات Lenovo، حامل مغناطيسي، كيبل UGREEN، وهدية مجانية!</p>
+            <span class="price" style="display:flex;align-items:center;gap:0.5rem;">109 ر.س <span style="text-decoration:line-through;color:#9ca3af;font-size:0.85rem;font-weight:400;">129 ر.س</span></span>
+            <button class="btn btn-primary add-to-cart" data-product="بكج التوفير" data-price="109">أضف إلى السلة</button>
+          </div>
+        </article>
+        <article class="product-card">
           <img src="https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=700&q=80" alt="مصباح مكتب RGB ذكي" />
           <div class="product-copy">
             <h3>مصباح مكتب RGB ذكي</h3>
@@ -120,7 +138,6 @@
           <span class="eyebrow">خدمة العملاء</span>
           <h2>دردش مع مساعد Udream</h2>
           <p>تحتاج مساعدة في اختيار الجهاز المناسب، تتبع طلب، أو تخصيص إعداد؟ استخدم الدردشة المدمجة للدعم السريع.</p>
-          <p style="margin-top:0.75rem;font-size:0.95rem;color:#4b5563;">📧 أو راسلنا عبر البريد: <a href="https://mail.google.com/mail/?view=cm&to=service.udream@gmail.com" target="_blank" rel="noopener noreferrer" style="color:#0d9669;font-weight:600;text-decoration:underline;">service.udream@gmail.com</a></p>
           <button class="btn btn-primary" id="open-chat-2">افتح الدردشة</button>
         </div>
         <div class="support-card">
@@ -134,15 +151,17 @@
 
     <section class="newsletter" id="contact">
       <div class="container newsletter-panel">
-        <div>
+        <div style="flex:1;min-width:0;">
           <span class="eyebrow">عرض خاص 🎁</span>
           <h2>سجّل الآن واحصل على كوبون خصم 5% فوري!</h2>
           <p style="color:#4b5563;margin:0.5rem 0 0;font-size:0.95rem;">عروض حصرية، وصول مبكر للمنتجات الجديدة، ونصائح تقنية مجانية مباشرة في بريدك 🚀</p>
+          <form class="newsletter-form" id="coupon-form">
+            <input type="email" id="coupon-email" placeholder="عنوان بريدك الإلكتروني" aria-label="عنوان البريد الإلكتروني" required />
+            <button class="btn btn-primary" type="submit" id="coupon-btn">🎉 احصل على الخصم</button>
+          </form>
+          <p id="coupon-msg" style="display:none;margin-top:0.75rem;font-weight:600;font-size:0.95rem;"></p>
         </div>
-        <form class="newsletter-form">
-          <input type="email" placeholder="عنوان بريدك الإلكتروني" aria-label="عنوان البريد الإلكتروني" required />
-          <button class="btn btn-primary" type="submit">🎉 احصل على الخصم</button>
-        </form>
+        <img src="https://images.unsplash.com/photo-1550009158-9ebf69173e03?auto=format&fit=crop&w=500&q=80" alt="عروض وخصومات" style="width:260px;height:260px;object-fit:cover;border-radius:20px;flex-shrink:0;" />
       </div>
     </section>
   </main>
@@ -150,8 +169,8 @@
   <footer class="site-footer">
     <div class="container footer-grid">
       <div class="footer-info">
-        <h3>Udream</h3>
-        <p>إكسسوارات إلكترونيات وعروض للحديثة والرقمية وإلكترونيات والجوالات الجديدة، وملحقات مكتب وحلول إدارة الكابلات للمحترفين وهواة التقنية.</p>
+        <h4>لمحة عنا</h4>
+        <p>متجر سعودي متخصص في إكسسوارات الإلكترونيات، الإضاءة، السماعات، ومستلزمات الغرف والمكاتب.</p>
         <div class="social-links">
           <a href="https://www.instagram.com/udream.sa?igsh=MXR2M3AzZmVpaG8xeQ==" aria-label="إنستغرام" title="إنستغرام" target="_blank">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -193,11 +212,23 @@
       <div class="footer-links">
         <h4>الروابط السريعة</h4>
         <a href="#products">تسوق</a>
+        <a href="#features">لماذا Udream</a>
         <a href="#support">الدعم</a>
         <a href="#contact">اتصل بنا</a>
-        <a href="terms.html" aria-label="الشروط والأحكام">الشروط والأحكام</a>
-        <a href="privacy.html" aria-label="سياسة الخصوصية">سياسة الخصوصية</a>
       </div>
+      <div class="footer-links">
+        <h4>معلومات قانونية</h4>
+        <a href="terms.html">الشروط والأحكام</a>
+        <a href="privacy.html">سياسة الخصوصية</a>
+      </div>
+      <div class="footer-links">
+        <h4>تواصل معنا</h4>
+        <a href="https://mail.google.com/mail/?view=cm&to=service.udream@gmail.com" target="_blank" rel="noopener noreferrer">service.udream@gmail.com</a>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <p>© 2026 Udream. جميع الحقوق محفوظة.</p>
+      <p>وثيقة العمل الحر: <span dir="ltr">FL-337742277</span></p>
     </div>
   </footer>
 

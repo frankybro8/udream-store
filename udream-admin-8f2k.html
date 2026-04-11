@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+  <title>Udream — لوحة التحكم الخاصة</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0b1220;
+      --panel: #111b2e;
+      --panel-2: #16213a;
+      --border: rgba(255,255,255,0.08);
+      --text: #e6edf7;
+      --muted: #8a9ab5;
+      --accent: #0d9669;
+      --accent-2: #34d399;
+      --danger: #ef4444;
+      --warn: #f59e0b;
+      --info: #6366f1;
+      --radius: 18px;
+      --shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: 'Cairo', system-ui, sans-serif;
+      background: radial-gradient(1200px 600px at 80% -10%, rgba(13,150,105,0.18), transparent 60%),
+                  radial-gradient(1000px 500px at 10% 110%, rgba(99,102,241,0.18), transparent 60%),
+                  var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    a { color: var(--accent-2); }
+    button { font-family: inherit; cursor: pointer; }
+    input, textarea, select {
+      font-family: inherit;
+      background: #0e1728;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.65rem 0.9rem;
+      outline: none;
+      width: 100%;
+    }
+    input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+
+    .gate {
+      position: fixed; inset: 0;
+      display: grid; place-items: center;
+      background: rgba(5,10,20,0.95);
+      z-index: 1000;
+    }
+    .gate-card {
+      width: min(420px, 92vw);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    .gate-card h1 { margin: 0 0 0.25rem; font-size: 1.4rem; }
+    .gate-card p { color: var(--muted); margin: 0 0 1.25rem; font-size: 0.9rem; }
+    .gate-card .btn { margin-top: 0.75rem; }
+    .gate-err { color: #fca5a5; font-size: 0.85rem; margin-top: 0.5rem; display: none; }
+
+    .app { display: none; }
+    .topbar {
+      position: sticky; top: 0; z-index: 5;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.5rem;
+      background: rgba(11,18,32,0.85);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .brand { display: flex; align-items: center; gap: 0.75rem; font-weight: 800; }
+    .brand-badge {
+      width: 34px; height: 34px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: grid; place-items: center; font-weight: 800; color: #062016;
+    }
+    .sync-status {
+      font-size: 0.75rem; color: var(--muted);
+      display: flex; align-items: center; gap: 0.35rem;
+    }
+    .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-2); }
+    .sync-dot.offline { background: var(--danger); }
+    .sync-dot.syncing { background: var(--warn); animation: pulse 1s infinite; }
+    @keyframes pulse { 50% { opacity: 0.4; } }
+
+    .topbar-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      padding: 0.55rem 0.95rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: transform 0.1s ease, background 0.2s ease;
+    }
+    .btn:hover { background: #1c2945; }
+    .btn:active { transform: translateY(1px); }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #062016; border-color: transparent;
+    }
+    .btn-primary:hover { filter: brightness(1.05); }
+    .btn-danger { background: #2a1016; color: #fca5a5; border-color: #4b1a22; }
+
+    main { padding: 1.5rem; max-width: 1280px; margin: 0 auto; }
+    .section-title {
+      font-size: 0.85rem; color: var(--muted); text-transform: uppercase;
+      letter-spacing: 0.1em; margin: 1.75rem 0 0.75rem;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      box-shadow: var(--shadow);
+    }
+    .panel h2 { margin: 0 0 0.25rem; font-size: 1.1rem; }
+    .panel .subtitle { color: var(--muted); font-size: 0.85rem; margin: 0 0 1rem; }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .kpi {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.15rem 1.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi::before {
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(13,150,105,0.12), transparent 60%);
+      pointer-events: none;
+    }
+    .kpi .label { color: var(--muted); font-size: 0.85rem; margin-bottom: 0.35rem; }
+    .kpi .value { font-size: 1.7rem; font-weight: 800; }
+    .kpi .sub { color: var(--muted); font-size: 0.8rem; margin-top: 0.25rem; }
+    .kpi.green .value { color: var(--accent-2); }
+    .kpi.red .value { color: #fca5a5; }
+    .kpi.indigo .value { color: #a5b4fc; }
+    .kpi.amber .value { color: #fcd34d; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th, td {
+      text-align: right; padding: 0.65rem 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    th { color: var(--muted); font-weight: 600; font-size: 0.8rem; }
+    .row-actions { display: flex; gap: 0.35rem; justify-content: flex-start; }
+    .row-actions button {
+      background: transparent; border: 1px solid var(--border);
+      color: var(--muted); border-radius: 8px; padding: 0.3rem 0.55rem;
+      font-size: 0.75rem;
+    }
+    .row-actions button:hover { color: var(--text); border-color: var(--accent); }
+
+    .form-row { display: grid; gap: 0.5rem; margin-bottom: 0.65rem; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; }
+    .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.65rem; }
+    @media (max-width: 600px) { .form-grid, .form-grid-3 { grid-template-columns: 1fr; } }
+
+    .card-list { display: grid; gap: 0.75rem; }
+    .item-card {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 0.85rem 1rem;
+    }
+    .item-card .meta { color: var(--muted); font-size: 0.75rem; margin-bottom: 0.25rem; }
+    .item-card .title { font-weight: 700; }
+    .progress { height: 8px; background: #0e1728; border-radius: 6px; margin-top: 0.5rem; overflow: hidden; }
+    .progress > span { display: block; height: 100%; background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
+    .progress.warn > span { background: linear-gradient(135deg, var(--warn), #fbbf24); }
+    .progress.danger > span { background: linear-gradient(135deg, var(--danger), #f87171); }
+
+    .pill {
+      display: inline-block; font-size: 0.7rem; padding: 0.2rem 0.55rem;
+      border-radius: 999px; background: rgba(13,150,105,0.15); color: var(--accent-2);
+      border: 1px solid rgba(13,150,105,0.3);
+    }
+    .pill.info { background: rgba(99,102,241,0.15); color: #a5b4fc; border-color: rgba(99,102,241,0.3); }
+    .pill.warn { background: rgba(245,158,11,0.15); color: #fcd34d; border-color: rgba(245,158,11,0.3); }
+    .pill.danger { background: rgba(239,68,68,0.15); color: #fca5a5; border-color: rgba(239,68,68,0.3); }
+
+    .empty { color: var(--muted); font-size: 0.85rem; padding: 0.75rem 0; }
+
+    .foot-note {
+      color: var(--muted); font-size: 0.75rem; text-align: center;
+      margin: 2rem 0 1rem;
+    }
+
+    .chart-wrap {
+      height: 220px; display: flex; align-items: flex-end; gap: 6px;
+      padding: 0.5rem 0.25rem 0;
+    }
+    .chart-bar {
+      flex: 1; background: linear-gradient(180deg, var(--accent-2), var(--accent));
+      border-radius: 6px 6px 0 0; position: relative; min-height: 4px;
+      transition: height 0.4s ease;
+    }
+    .chart-bar::after {
+      content: attr(data-label); position: absolute; bottom: -1.2rem; left: 50%;
+      transform: translateX(-50%); font-size: 0.7rem; color: var(--muted);
+    }
+
+    /* Calculator */
+    .calc-result {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    .calc-result .row {
+      display: flex; justify-content: space-between;
+      padding: 0.45rem 0;
+      border-bottom: 1px dashed var(--border);
+      font-size: 0.9rem;
+    }
+    .calc-result .row:last-child { border-bottom: none; }
+    .calc-result .row.hi { font-size: 1.1rem; font-weight: 800; color: var(--accent-2); }
+    .calc-result .row .k { color: var(--muted); }
+
+    /* Budget */
+    .budget-row {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 0.85rem 1rem;
+      margin-bottom: 0.75rem;
+    }
+    .budget-row .head {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 0.35rem;
+      font-size: 0.9rem;
+    }
+    .budget-row .head .cat { font-weight: 700; }
+    .budget-row .head .nums { color: var(--muted); font-size: 0.8rem; }
+    .budget-set { display: grid; grid-template-columns: 1fr auto; gap: 0.5rem; margin-top: 0.5rem; }
+    .budget-set input { padding: 0.4rem 0.6rem; font-size: 0.85rem; }
+    .budget-set button { padding: 0.4rem 0.8rem; font-size: 0.8rem; }
+
+    .hidden { display: none !important; }
+
+    /* Modal */
+    .modal-back {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      display: none; place-items: center;
+      z-index: 1500;
+    }
+    .modal-back.show { display: grid; }
+    .modal {
+      width: min(440px, 92vw);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.75rem;
+      box-shadow: var(--shadow);
+    }
+    .modal h3 { margin: 0 0 0.25rem; font-size: 1.15rem; }
+    .modal p { margin: 0 0 1rem; color: var(--muted); font-size: 0.85rem; }
+    .modal .actions {
+      display: flex; gap: 0.5rem; margin-top: 1rem; justify-content: flex-end;
+    }
+    .modal .err {
+      color: #fca5a5; font-size: 0.8rem; margin-top: 0.5rem; display: none;
+    }
+
+    /* Filter tabs */
+    .filter-tabs {
+      display: flex; gap: 0.35rem; flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+    .filter-tab {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 0.4rem 0.85rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .filter-tab:hover { color: var(--text); }
+    .filter-tab.active {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #062016;
+      border-color: transparent;
+    }
+
+    /* Line chart */
+    .line-chart {
+      width: 100%; height: 240px;
+      background: var(--panel-2);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      padding: 0.75rem;
+      box-sizing: border-box;
+    }
+    .line-chart svg { width: 100%; height: 100%; }
+    .legend { display: flex; gap: 1rem; margin-top: 0.75rem; font-size: 0.8rem; color: var(--muted); }
+    .legend span::before {
+      content: ""; display: inline-block; width: 10px; height: 10px;
+      border-radius: 50%; margin-left: 0.35rem; vertical-align: middle;
+    }
+    .legend .rev::before { background: var(--accent-2); }
+    .legend .cost::before { background: #fca5a5; }
+    .legend .profit::before { background: #fcd34d; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 20px; left: 50%;
+      transform: translateX(-50%);
+      background: var(--panel);
+      border: 1px solid var(--accent);
+      color: var(--text);
+      padding: 0.75rem 1.25rem;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      box-shadow: var(--shadow);
+      opacity: 0; transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 2000;
+    }
+    .toast.show { opacity: 1; }
+    .toast.error { border-color: var(--danger); }
+  </style>
+</head>
+<body>
+
+  <!-- ── Password gate ──────────────────────────── -->
+  <div class="gate" id="gate">
+    <div class="gate-card">
+      <div class="brand-badge" style="margin: 0 auto 1rem;">U</div>
+      <h1>منطقة خاصة</h1>
+      <p>هذه الصفحة للمالك والشريك فقط. الرجاء إدخال كلمة المرور.</p>
+      <div class="form-row">
+        <input type="password" id="gate-pass" placeholder="كلمة المرور" autocomplete="current-password" />
+      </div>
+      <button class="btn btn-primary" id="gate-btn" style="width: 100%;">دخول</button>
+      <div class="gate-err" id="gate-err">كلمة المرور غير صحيحة</div>
+      <p style="margin-top: 1rem; font-size: 0.75rem;">
+        كلمة المرور الافتراضية: <code>udream2026</code> — غيّرها فوراً من داخل اللوحة.
+      </p>
+    </div>
+  </div>
+
+  <!-- ── Dashboard app ──────────────────────────── -->
+  <div class="app" id="app">
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-badge">U</div>
+        <div>
+          <div>Udream — لوحة التحكم</div>
+          <div class="sync-status">
+            <span class="sync-dot" id="sync-dot"></span>
+            <span id="sync-text">متزامن</span>
+          </div>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn" id="btn-refresh">🔄 تحديث</button>
+        <button class="btn" id="btn-export">📤 تصدير</button>
+        <button class="btn" id="btn-change-pass">🔑 كلمة المرور</button>
+        <button class="btn btn-danger" id="btn-logout">🚪 خروج</button>
+      </div>
+    </div>
+
+    <main>
+      <!-- Overview KPIs -->
+      <div class="section-title">نظرة عامة</div>
+      <div class="filter-tabs" id="kpi-filter">
+        <button class="filter-tab active" data-range="month">الشهر الحالي</button>
+        <button class="filter-tab" data-range="last-month">الشهر السابق</button>
+        <button class="filter-tab" data-range="30d">آخر 30 يوم</button>
+        <button class="filter-tab" data-range="90d">آخر 90 يوم</button>
+        <button class="filter-tab" data-range="year">هذه السنة</button>
+        <button class="filter-tab" data-range="all">الكل</button>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi green">
+          <div class="label">الإيرادات</div>
+          <div class="value"><span id="kpi-revenue">0</span> ر.س</div>
+          <div class="sub">إجمالي المبيعات المسجلة</div>
+        </div>
+        <div class="kpi red">
+          <div class="label">التكاليف</div>
+          <div class="value"><span id="kpi-costs">0</span> ر.س</div>
+          <div class="sub">بضاعة، شحن، إعلانات…</div>
+        </div>
+        <div class="kpi amber">
+          <div class="label">صافي الربح</div>
+          <div class="value"><span id="kpi-profit">0</span> ر.س</div>
+          <div class="sub">هامش الربح: <span id="kpi-margin">0%</span></div>
+        </div>
+        <div class="kpi indigo">
+          <div class="label">زيارات الموقع</div>
+          <div class="value" id="kpi-views">0</div>
+          <div class="sub">إجمالي الزوار المسجلين</div>
+        </div>
+      </div>
+
+      <!-- Transactions -->
+      <div class="section-title">المعاملات المالية</div>
+      <div class="grid-2">
+        <div class="panel">
+          <h2>💰 إضافة مبيعة / تكلفة</h2>
+          <p class="subtitle">سجّل كل حركة مالية لتحديث الأرباح والميزانية.</p>
+          <div class="form-grid">
+            <select id="tx-type">
+              <option value="sale">مبيعة (دخل)</option>
+              <option value="cost">تكلفة (خصم)</option>
+            </select>
+            <input type="number" id="tx-amount" placeholder="المبلغ بالريال" min="0" step="0.01" />
+          </div>
+          <div class="form-grid" style="margin-top: 0.65rem;">
+            <select id="tx-category">
+              <option value="sales">مبيعات</option>
+              <option value="marketing">تسويق</option>
+              <option value="stock">بضاعة / مخزون</option>
+              <option value="shipping">شحن</option>
+              <option value="ads">إعلانات</option>
+              <option value="other">أخرى</option>
+            </select>
+            <input type="date" id="tx-date" />
+          </div>
+          <div class="form-row" style="margin-top: 0.65rem;">
+            <input type="text" id="tx-note" placeholder="ملاحظة (مثال: طلب #123 أو إعلان سناب)" />
+          </div>
+          <button class="btn btn-primary" id="btn-add-tx" style="width: 100%;">➕ إضافة الحركة</button>
+        </div>
+
+        <div class="panel">
+          <h2>📊 آخر الحركات</h2>
+          <p class="subtitle">عرض آخر 10 معاملات.</p>
+          <table>
+            <thead>
+              <tr><th>النوع</th><th>المبلغ</th><th>الفئة</th><th>التاريخ</th><th></th></tr>
+            </thead>
+            <tbody id="tx-table"></tbody>
+          </table>
+          <div id="tx-empty" class="empty">لا توجد معاملات بعد.</div>
+        </div>
+      </div>
+
+      <!-- Budget -->
+      <div class="section-title">الميزانية الشهرية</div>
+      <div class="panel">
+        <h2>💼 ميزانيات الأقسام</h2>
+        <p class="subtitle">حدد ميزانية كل قسم، وشاهد كم صرفت من الميزانية هذا الشهر.</p>
+        <div id="budget-list"></div>
+      </div>
+
+      <!-- Calculator -->
+      <div class="section-title">حاسبة الأسعار والربحية</div>
+      <div class="grid-2">
+        <div class="panel">
+          <h2>🧮 حاسبة تسعير المنتج</h2>
+          <p class="subtitle">احسب سعر البيع، هامش الربح، ونقطة التعادل.</p>
+          <div class="form-row">
+            <label style="color: var(--muted); font-size: 0.8rem;">سعر الشراء (التكلفة)</label>
+            <input type="number" id="calc-cost" placeholder="مثال: 50" min="0" step="0.01" />
+          </div>
+          <div class="form-grid">
+            <div>
+              <label style="color: var(--muted); font-size: 0.8rem;">نسبة الربح %</label>
+              <input type="number" id="calc-markup" placeholder="مثال: 40" min="0" step="0.1" />
+            </div>
+            <div>
+              <label style="color: var(--muted); font-size: 0.8rem;">تكلفة الشحن / وحدة</label>
+              <input type="number" id="calc-ship" placeholder="مثال: 10" min="0" step="0.01" />
+            </div>
+          </div>
+          <div class="form-grid" style="margin-top: 0.65rem;">
+            <div>
+              <label style="color: var(--muted); font-size: 0.8rem;">ضريبة القيمة المضافة %</label>
+              <input type="number" id="calc-vat" value="15" min="0" step="0.1" />
+            </div>
+            <div>
+              <label style="color: var(--muted); font-size: 0.8rem;">الكمية</label>
+              <input type="number" id="calc-qty" value="1" min="1" step="1" />
+            </div>
+          </div>
+          <button class="btn btn-primary" id="btn-calc" style="width: 100%; margin-top: 0.75rem;">احسب</button>
+        </div>
+        <div class="panel">
+          <h2>📈 النتيجة</h2>
+          <p class="subtitle">تفاصيل كاملة لسعر البيع المقترح.</p>
+          <div class="calc-result" id="calc-result">
+            <div class="row"><span class="k">سعر البيع قبل الضريبة</span><span id="calc-sell">0.00 ر.س</span></div>
+            <div class="row"><span class="k">سعر البيع بعد الضريبة</span><span id="calc-sell-vat">0.00 ر.س</span></div>
+            <div class="row"><span class="k">الربح للوحدة</span><span id="calc-profit">0.00 ر.س</span></div>
+            <div class="row"><span class="k">هامش الربح الصافي</span><span id="calc-margin">0%</span></div>
+            <div class="row"><span class="k">إجمالي التكلفة (الكمية)</span><span id="calc-total-cost">0.00 ر.س</span></div>
+            <div class="row"><span class="k">إجمالي البيع (الكمية)</span><span id="calc-total-sell">0.00 ر.س</span></div>
+            <div class="row hi"><span class="k">إجمالي الربح</span><span id="calc-total-profit">0.00 ر.س</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Revenue vs Costs chart -->
+      <div class="section-title">الإيرادات مقابل التكاليف</div>
+      <div class="panel">
+        <h2>📉 آخر 6 أشهر</h2>
+        <p class="subtitle">المبيعات، التكاليف، وصافي الربح شهرياً.</p>
+        <div class="line-chart"><svg id="rev-chart" viewBox="0 0 600 220" preserveAspectRatio="none"></svg></div>
+        <div class="legend">
+          <span class="rev">الإيرادات</span>
+          <span class="cost">التكاليف</span>
+          <span class="profit">الربح</span>
+        </div>
+      </div>
+
+      <!-- Analytics -->
+      <div class="section-title">تحليلات الموقع</div>
+      <div class="panel">
+        <h2>📈 زيارات آخر 14 يوم</h2>
+        <p class="subtitle">يتم تسجيل كل زيارة على index.html من جميع الزوار عبر الخادم.</p>
+        <div class="chart-wrap" id="views-chart"></div>
+        <div style="display:flex; justify-content:space-between; margin-top: 1.5rem; color: var(--muted); font-size: 0.85rem;">
+          <span>اليوم: <b id="views-today" style="color: var(--text);">0</b></span>
+          <span>آخر 7 أيام: <b id="views-week" style="color: var(--text);">0</b></span>
+          <span>الإجمالي: <b id="views-total" style="color: var(--text);">0</b></span>
+        </div>
+      </div>
+
+      <!-- Goals + Ideas -->
+      <div class="section-title">الأهداف والأفكار</div>
+      <div class="grid-2">
+        <div class="panel">
+          <h2>🎯 الأهداف</h2>
+          <p class="subtitle">أهدافك قصيرة أو طويلة المدى مع نسبة الإنجاز.</p>
+          <div class="form-grid">
+            <input type="text" id="goal-title" placeholder="اسم الهدف" />
+            <input type="number" id="goal-progress" placeholder="النسبة %" min="0" max="100" />
+          </div>
+          <div class="form-row" style="margin-top: 0.65rem;">
+            <input type="text" id="goal-note" placeholder="ملاحظة (اختياري)" />
+          </div>
+          <button class="btn btn-primary" id="btn-add-goal" style="width: 100%;">➕ إضافة هدف</button>
+          <div class="card-list" id="goals-list" style="margin-top: 1rem;"></div>
+          <div id="goals-empty" class="empty">لا توجد أهداف بعد.</div>
+        </div>
+
+        <div class="panel">
+          <h2>💡 الأفكار</h2>
+          <p class="subtitle">كل فكرة تخطر لك — منتج، حملة، تحسين…</p>
+          <div class="form-row">
+            <input type="text" id="idea-title" placeholder="عنوان الفكرة" />
+          </div>
+          <div class="form-row">
+            <textarea id="idea-desc" placeholder="تفاصيل الفكرة" rows="3"></textarea>
+          </div>
+          <button class="btn btn-primary" id="btn-add-idea" style="width: 100%;">➕ إضافة فكرة</button>
+          <div class="card-list" id="ideas-list" style="margin-top: 1rem;"></div>
+          <div id="ideas-empty" class="empty">لا توجد أفكار بعد.</div>
+        </div>
+      </div>
+
+      <!-- Marketing campaigns -->
+      <div class="section-title">التسويق</div>
+      <div class="grid-2">
+        <div class="panel">
+          <h2>📣 خطط تسويقية</h2>
+          <p class="subtitle">سجّل حملاتك (سناب، تيك توك، إعلان ممول…) وقيّم نتائجها.</p>
+          <div class="form-grid">
+            <input type="text" id="camp-name" placeholder="اسم الحملة" />
+            <select id="camp-channel">
+              <option value="instagram">Instagram</option>
+              <option value="tiktok">TikTok</option>
+              <option value="snapchat">Snapchat</option>
+              <option value="x">X (Twitter)</option>
+              <option value="threads">Threads</option>
+              <option value="google">Google Ads</option>
+              <option value="influencer">Influencer</option>
+              <option value="other">أخرى</option>
+            </select>
+          </div>
+          <div class="form-grid" style="margin-top: 0.65rem;">
+            <input type="number" id="camp-budget" placeholder="الميزانية ر.س" min="0" />
+            <select id="camp-status">
+              <option value="planned">مخطط</option>
+              <option value="active">نشط</option>
+              <option value="done">منتهي</option>
+            </select>
+          </div>
+          <div class="form-row" style="margin-top: 0.65rem;">
+            <input type="text" id="camp-note" placeholder="ملاحظات / النتائج" />
+          </div>
+          <button class="btn btn-primary" id="btn-add-camp" style="width: 100%;">➕ إضافة حملة</button>
+        </div>
+
+        <div class="panel">
+          <h2>📋 الحملات الحالية</h2>
+          <p class="subtitle">عرض جميع الحملات المسجلة.</p>
+          <div class="card-list" id="camps-list"></div>
+          <div id="camps-empty" class="empty">لا توجد حملات بعد.</div>
+        </div>
+      </div>
+
+      <!-- Claude marketing assistant -->
+      <div class="section-title">مساعدة التسويق</div>
+      <div class="panel">
+        <h2>🤖 كيف أساعدك في التسويق؟</h2>
+        <p class="subtitle">اطلب مني داخل Claude Code أي من الأفكار التالية وسأنفذها مباشرة في موقعك:</p>
+        <ul style="line-height: 2; color: var(--muted); margin: 0;">
+          <li>📝 كتابة نصوص إعلانية (Snap / TikTok / Instagram / X) بالعربي الخليجي المناسب.</li>
+          <li>🎨 تصميم بوستات ترويجية HTML قابلة للتصدير كصور.</li>
+          <li>🧲 بناء صفحات هبوط (Landing Pages) لكل حملة.</li>
+          <li>🏷️ إنشاء كوبونات خصم متغيرة مع كود خصم فريد.</li>
+          <li>✉️ قوالب رسائل بريدية لعملائك (Newsletter).</li>
+          <li>🔎 تحسين SEO للموقع (Meta tags، Open Graph، Schema).</li>
+          <li>📦 تصميم بكجات وعروض جديدة (Bundles).</li>
+          <li>📅 خطة محتوى شهرية جاهزة للنشر.</li>
+          <li>💬 تحسين الشات بوت بردود ذكية لمنتجاتكم.</li>
+          <li>🧮 حساب تكلفة الاكتساب (CAC) والعائد على الإعلان (ROAS).</li>
+        </ul>
+      </div>
+
+      <div class="foot-note">
+        © 2026 Udream — منطقة خاصة. لا تشارك الرابط أو كلمة المرور.<br />
+        البيانات متزامنة بين جميع الأجهزة عبر الخادم.
+      </div>
+    </main>
+  </div>
+
+  <!-- Password change modal -->
+  <div class="modal-back" id="pw-modal">
+    <div class="modal">
+      <h3>🔑 تغيير كلمة المرور</h3>
+      <p>أدخل كلمة المرور الحالية ثم الجديدة.</p>
+      <div class="form-row">
+        <input type="password" id="pw-current" placeholder="كلمة المرور الحالية" autocomplete="current-password" />
+      </div>
+      <div class="form-row">
+        <input type="password" id="pw-new" placeholder="كلمة المرور الجديدة (6 أحرف على الأقل)" autocomplete="new-password" />
+      </div>
+      <div class="form-row">
+        <input type="password" id="pw-confirm" placeholder="تأكيد كلمة المرور الجديدة" autocomplete="new-password" />
+      </div>
+      <div class="err" id="pw-err"></div>
+      <div class="actions">
+        <button class="btn" id="pw-cancel">إلغاء</button>
+        <button class="btn btn-primary" id="pw-save">حفظ</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ══════════════════════════════════════════════════════
+    // Udream Private Dashboard — Server-synced
+    // ══════════════════════════════════════════════════════
+
+    const TOKEN_KEY = 'udream-admin-token';
+    const BUDGET_CATEGORIES = [
+      { key: 'marketing', label: 'التسويق', icon: '📣' },
+      { key: 'stock',     label: 'البضاعة', icon: '📦' },
+      { key: 'shipping',  label: 'الشحن',   icon: '🚚' },
+      { key: 'ads',       label: 'الإعلانات', icon: '📢' },
+      { key: 'other',     label: 'أخرى',    icon: '📋' },
+    ];
+
+    let data = null;
+    let views = {};
+    let token = sessionStorage.getItem(TOKEN_KEY);
+    let saveTimer = null;
+
+    // ── API ───────────────────────────────────────
+    async function api(method, path, body) {
+      const opts = {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+      };
+      if (token) opts.headers['X-Admin-Token'] = token;
+      if (body) opts.body = JSON.stringify(body);
+      const res = await fetch(path, opts);
+      if (res.status === 401) {
+        sessionStorage.removeItem(TOKEN_KEY);
+        token = null;
+        location.reload();
+        throw new Error('unauthorized');
+      }
+      return res.json();
+    }
+
+    // ── Auth gate ─────────────────────────────────
+    const gate    = document.getElementById('gate');
+    const app     = document.getElementById('app');
+    const gatePass= document.getElementById('gate-pass');
+    const gateBtn = document.getElementById('gate-btn');
+    const gateErr = document.getElementById('gate-err');
+
+    async function tryLogin() {
+      gateErr.style.display = 'none';
+      const password = gatePass.value;
+      if (!password) return;
+      try {
+        const res = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password }),
+        });
+        if (!res.ok) { gateErr.style.display = 'block'; gatePass.value = ''; return; }
+        const j = await res.json();
+        token = j.token;
+        sessionStorage.setItem(TOKEN_KEY, token);
+        await bootstrap();
+      } catch (e) {
+        gateErr.textContent = 'فشل الاتصال بالخادم. تحقق من تشغيل Node.';
+        gateErr.style.display = 'block';
+      }
+    }
+    gateBtn.addEventListener('click', tryLogin);
+    gatePass.addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
+
+    async function bootstrap() {
+      try {
+        setSync('syncing', 'جارٍ التحميل…');
+        data  = await api('GET', '/api/admin/data');
+        views = await api('GET', '/api/admin/views');
+        gate.style.display = 'none';
+        app.style.display = 'block';
+        renderAll();
+        setSync('online', 'متزامن');
+      } catch (e) {
+        setSync('offline', 'الخادم غير متصل');
+        console.error(e);
+      }
+    }
+
+    if (token) bootstrap();
+    else setTimeout(() => gatePass.focus(), 100);
+
+    // ── Sync indicator ────────────────────────────
+    function setSync(state, text) {
+      const dot = document.getElementById('sync-dot');
+      dot.className = 'sync-dot' + (state === 'online' ? '' : ' ' + state);
+      document.getElementById('sync-text').textContent = text;
+    }
+
+    // ── Toast ─────────────────────────────────────
+    function toast(msg, isError = false) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast show' + (isError ? ' error' : '');
+      setTimeout(() => t.className = 'toast', 2200);
+    }
+
+    // ── Save (debounced) ──────────────────────────
+    function saveData() {
+      clearTimeout(saveTimer);
+      setSync('syncing', 'جارٍ الحفظ…');
+      saveTimer = setTimeout(async () => {
+        try {
+          await api('POST', '/api/admin/data', data);
+          setSync('online', 'متزامن');
+        } catch { setSync('offline', 'فشل الحفظ'); }
+      }, 400);
+    }
+
+    const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+    // ── Top bar actions ───────────────────────────
+    document.getElementById('btn-refresh').addEventListener('click', bootstrap);
+
+    document.getElementById('btn-logout').addEventListener('click', async () => {
+      try { await api('POST', '/api/admin/logout'); } catch {}
+      sessionStorage.removeItem(TOKEN_KEY);
+      location.reload();
+    });
+
+    // Password modal
+    const pwModal   = document.getElementById('pw-modal');
+    const pwCurrent = document.getElementById('pw-current');
+    const pwNew     = document.getElementById('pw-new');
+    const pwConfirm = document.getElementById('pw-confirm');
+    const pwErr     = document.getElementById('pw-err');
+
+    function openPwModal() {
+      pwCurrent.value = ''; pwNew.value = ''; pwConfirm.value = '';
+      pwErr.style.display = 'none';
+      pwModal.classList.add('show');
+      setTimeout(() => pwCurrent.focus(), 50);
+    }
+    function closePwModal() { pwModal.classList.remove('show'); }
+
+    document.getElementById('btn-change-pass').addEventListener('click', openPwModal);
+    document.getElementById('pw-cancel').addEventListener('click', closePwModal);
+    pwModal.addEventListener('click', e => { if (e.target === pwModal) closePwModal(); });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && pwModal.classList.contains('show')) closePwModal();
+    });
+
+    async function submitPwChange() {
+      const current = pwCurrent.value;
+      const next    = pwNew.value;
+      const confirm2= pwConfirm.value;
+      pwErr.style.display = 'none';
+      if (!current) { pwErr.textContent = 'أدخل كلمة المرور الحالية'; pwErr.style.display='block'; return; }
+      if (!next || next.length < 6) { pwErr.textContent = 'كلمة المرور الجديدة قصيرة (6 على الأقل)'; pwErr.style.display='block'; return; }
+      if (next !== confirm2) { pwErr.textContent = 'كلمتا المرور غير متطابقتين'; pwErr.style.display='block'; return; }
+      try {
+        const r = await api('POST', '/api/admin/change-password', { current, next });
+        if (r.success) {
+          closePwModal();
+          toast('تم تحديث كلمة المرور ✅');
+        } else {
+          pwErr.textContent = r.error === 'wrong current password'
+            ? 'كلمة المرور الحالية غير صحيحة'
+            : (r.error || 'فشل التحديث');
+          pwErr.style.display = 'block';
+        }
+      } catch (e) {
+        pwErr.textContent = 'خطأ في الاتصال بالخادم';
+        pwErr.style.display = 'block';
+      }
+    }
+    document.getElementById('pw-save').addEventListener('click', submitPwChange);
+    [pwCurrent, pwNew, pwConfirm].forEach(el => {
+      el.addEventListener('keydown', e => { if (e.key === 'Enter') submitPwChange(); });
+    });
+
+    document.getElementById('btn-export').addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify({ data, views }, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `udream-admin-${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // ── Transactions ──────────────────────────────
+    const txType = document.getElementById('tx-type');
+    const txAmt  = document.getElementById('tx-amount');
+    const txNote = document.getElementById('tx-note');
+    const txDate = document.getElementById('tx-date');
+    const txCat  = document.getElementById('tx-category');
+    txDate.valueAsDate = new Date();
+
+    // Auto-set category when type changes
+    txType.addEventListener('change', () => {
+      if (txType.value === 'sale') txCat.value = 'sales';
+    });
+
+    document.getElementById('btn-add-tx').addEventListener('click', () => {
+      const amount = parseFloat(txAmt.value);
+      if (!amount || amount <= 0) { toast('أدخل مبلغاً صحيحاً', true); return; }
+      data.transactions.unshift({
+        id: uid(),
+        type: txType.value,
+        category: txCat.value,
+        amount,
+        note: txNote.value.trim(),
+        date: txDate.value || new Date().toISOString().slice(0,10),
+      });
+      saveData();
+      txAmt.value = ''; txNote.value = '';
+      renderKPIs(); renderTx(); renderBudget();
+      toast('تمت إضافة الحركة ✅');
+    });
+
+    function renderTx() {
+      const body = document.getElementById('tx-table');
+      const empty= document.getElementById('tx-empty');
+      body.innerHTML = '';
+      const items = (data.transactions || []).slice(0, 10);
+      empty.style.display = items.length ? 'none' : 'block';
+      const catLabels = { sales:'مبيعات', marketing:'تسويق', stock:'بضاعة', shipping:'شحن', ads:'إعلانات', other:'أخرى' };
+      items.forEach(t => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${t.type === 'sale' ? '<span class="pill">مبيعة</span>' : '<span class="pill warn">تكلفة</span>'}</td>
+          <td>${t.amount.toFixed(2)} ر.س</td>
+          <td>${catLabels[t.category] || '—'}</td>
+          <td>${t.date}</td>
+          <td class="row-actions"><button data-id="${t.id}">حذف</button></td>
+        `;
+        tr.querySelector('button').addEventListener('click', () => {
+          data.transactions = data.transactions.filter(x => x.id !== t.id);
+          saveData(); renderKPIs(); renderTx(); renderBudget();
+        });
+        body.appendChild(tr);
+      });
+    }
+
+    // Date filter state
+    let kpiRange = 'month';
+    document.querySelectorAll('#kpi-filter .filter-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('#kpi-filter .filter-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        kpiRange = tab.dataset.range;
+        renderKPIs();
+      });
+    });
+
+    function rangeMatches(dateStr, range) {
+      if (!dateStr) return false;
+      const now = new Date();
+      const d = new Date(dateStr);
+      if (isNaN(d)) return false;
+      if (range === 'all') return true;
+      if (range === 'month') return dateStr.startsWith(now.toISOString().slice(0, 7));
+      if (range === 'last-month') {
+        const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        return dateStr.startsWith(lm.toISOString().slice(0, 7));
+      }
+      if (range === '30d') {
+        const cutoff = new Date(now); cutoff.setDate(now.getDate() - 30);
+        return d >= cutoff;
+      }
+      if (range === '90d') {
+        const cutoff = new Date(now); cutoff.setDate(now.getDate() - 90);
+        return d >= cutoff;
+      }
+      if (range === 'year') return dateStr.startsWith(now.getFullYear().toString());
+      return true;
+    }
+
+    function renderKPIs() {
+      let revenue = 0, costs = 0;
+      (data.transactions || []).forEach(t => {
+        if (rangeMatches(t.date, kpiRange)) {
+          if (t.type === 'sale') revenue += t.amount;
+          else costs += t.amount;
+        }
+      });
+      const profit = revenue - costs;
+      const margin = revenue > 0 ? ((profit / revenue) * 100).toFixed(1) : 0;
+      document.getElementById('kpi-revenue').textContent = revenue.toFixed(2);
+      document.getElementById('kpi-costs').textContent   = costs.toFixed(2);
+      document.getElementById('kpi-profit').textContent  = profit.toFixed(2);
+      document.getElementById('kpi-margin').textContent  = margin + '%';
+    }
+
+    // ── Revenue vs Costs chart (last 6 months) ────
+    function renderRevChart() {
+      const months = [];
+      const now = new Date();
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        months.push({
+          key: d.toISOString().slice(0, 7),
+          label: d.toLocaleDateString('ar-SA', { month: 'short', year: '2-digit' }),
+        });
+      }
+      const stats = months.map(m => {
+        let rev = 0, cost = 0;
+        (data.transactions || []).forEach(t => {
+          if ((t.date || '').startsWith(m.key)) {
+            if (t.type === 'sale') rev += t.amount;
+            else cost += t.amount;
+          }
+        });
+        return { ...m, rev, cost, profit: rev - cost };
+      });
+      const maxVal = Math.max(1, ...stats.flatMap(s => [s.rev, s.cost, Math.abs(s.profit)]));
+      const W = 600, H = 220, PAD_X = 30, PAD_Y = 20;
+      const xStep = (W - 2 * PAD_X) / Math.max(1, stats.length - 1);
+      const yScale = (H - 2 * PAD_Y) / maxVal;
+
+      const pathFor = (key, baseLine = false) => stats.map((s, i) => {
+        const x = PAD_X + i * xStep;
+        const val = baseLine ? Math.max(0, s[key]) : s[key];
+        const y = H - PAD_Y - val * yScale;
+        return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`;
+      }).join(' ');
+
+      // Labels (RTL — flip X via transform so Arabic months read right-to-left)
+      const labels = stats.map((s, i) => {
+        const x = PAD_X + i * xStep;
+        return `<text x="${x}" y="${H - 4}" fill="#8a9ab5" font-size="10" text-anchor="middle">${s.label}</text>`;
+      }).join('');
+      const dots = (key, color) => stats.map((s, i) => {
+        const x = PAD_X + i * xStep;
+        const y = H - PAD_Y - s[key] * yScale;
+        return `<circle cx="${x}" cy="${y}" r="3" fill="${color}"><title>${s.label}: ${s[key].toFixed(0)} ر.س</title></circle>`;
+      }).join('');
+
+      const svg = document.getElementById('rev-chart');
+      svg.innerHTML = `
+        <!-- grid -->
+        <line x1="${PAD_X}" y1="${H - PAD_Y}" x2="${W - PAD_X}" y2="${H - PAD_Y}" stroke="rgba(255,255,255,0.08)"/>
+        <line x1="${PAD_X}" y1="${PAD_Y}"      x2="${W - PAD_X}" y2="${PAD_Y}"      stroke="rgba(255,255,255,0.04)"/>
+        <!-- lines -->
+        <path d="${pathFor('rev')}"    fill="none" stroke="#34d399" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="${pathFor('cost')}"   fill="none" stroke="#fca5a5" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="${pathFor('profit')}" fill="none" stroke="#fcd34d" stroke-width="2.5" stroke-linejoin="round" stroke-dasharray="4 3"/>
+        ${dots('rev','#34d399')}
+        ${dots('cost','#fca5a5')}
+        ${dots('profit','#fcd34d')}
+        ${labels}
+      `;
+    }
+
+    // ── Budget ────────────────────────────────────
+    function computeCategorySpent(catKey) {
+      const thisMonth = new Date().toISOString().slice(0, 7);
+      return (data.transactions || [])
+        .filter(t => t.type === 'cost'
+                  && (t.date || '').startsWith(thisMonth)
+                  && t.category === catKey)
+        .reduce((sum, t) => sum + t.amount, 0);
+    }
+
+    function renderBudget() {
+      const list = document.getElementById('budget-list');
+      list.innerHTML = '';
+      BUDGET_CATEGORIES.forEach(cat => {
+        const budget = (data.budgets && data.budgets[cat.key]) || 0;
+        const spent  = computeCategorySpent(cat.key);
+        const pct    = budget > 0 ? Math.min(100, (spent / budget) * 100) : 0;
+        const remaining = budget - spent;
+        let progClass = '';
+        if (pct >= 100) progClass = 'danger';
+        else if (pct >= 80) progClass = 'warn';
+
+        const row = document.createElement('div');
+        row.className = 'budget-row';
+        row.innerHTML = `
+          <div class="head">
+            <div class="cat">${cat.icon} ${cat.label}</div>
+            <div class="nums">
+              ${spent.toFixed(2)} / ${budget.toFixed(2)} ر.س
+              ${budget > 0 ? ` — متبقي <b style="color:${remaining < 0 ? '#fca5a5' : 'var(--accent-2)'};">${remaining.toFixed(2)}</b>` : ''}
+            </div>
+          </div>
+          <div class="progress ${progClass}"><span style="width:${pct}%"></span></div>
+          <div class="budget-set">
+            <input type="number" min="0" step="0.01" value="${budget}" data-cat="${cat.key}" placeholder="الميزانية" />
+            <button class="btn" data-save="${cat.key}">حفظ</button>
+          </div>
+        `;
+        row.querySelector('[data-save]').addEventListener('click', () => {
+          const val = parseFloat(row.querySelector(`input[data-cat="${cat.key}"]`).value) || 0;
+          data.budgets = data.budgets || {};
+          data.budgets[cat.key] = val;
+          saveData();
+          renderBudget();
+          toast(`تم ضبط ميزانية ${cat.label}`);
+        });
+        list.appendChild(row);
+      });
+    }
+
+    // ── Calculator ────────────────────────────────
+    function runCalc() {
+      const cost   = parseFloat(document.getElementById('calc-cost').value)   || 0;
+      const markup = parseFloat(document.getElementById('calc-markup').value) || 0;
+      const ship   = parseFloat(document.getElementById('calc-ship').value)   || 0;
+      const vat    = parseFloat(document.getElementById('calc-vat').value)    || 0;
+      const qty    = parseInt(document.getElementById('calc-qty').value)      || 1;
+
+      const unitCost = cost + ship;
+      const sell     = unitCost * (1 + markup / 100);
+      const sellVat  = sell * (1 + vat / 100);
+      const profit   = sell - unitCost;
+      const margin   = sell > 0 ? (profit / sell * 100) : 0;
+
+      document.getElementById('calc-sell').textContent       = sell.toFixed(2) + ' ر.س';
+      document.getElementById('calc-sell-vat').textContent   = sellVat.toFixed(2) + ' ر.س';
+      document.getElementById('calc-profit').textContent     = profit.toFixed(2) + ' ر.س';
+      document.getElementById('calc-margin').textContent     = margin.toFixed(1) + '%';
+      document.getElementById('calc-total-cost').textContent = (unitCost * qty).toFixed(2) + ' ر.س';
+      document.getElementById('calc-total-sell').textContent = (sell * qty).toFixed(2) + ' ر.س';
+      document.getElementById('calc-total-profit').textContent = (profit * qty).toFixed(2) + ' ر.س';
+    }
+    document.getElementById('btn-calc').addEventListener('click', runCalc);
+    ['calc-cost','calc-markup','calc-ship','calc-vat','calc-qty'].forEach(id => {
+      document.getElementById(id).addEventListener('input', runCalc);
+    });
+
+    // ── Goals ─────────────────────────────────────
+    document.getElementById('btn-add-goal').addEventListener('click', () => {
+      const title = document.getElementById('goal-title').value.trim();
+      const progress = parseInt(document.getElementById('goal-progress').value) || 0;
+      const note = document.getElementById('goal-note').value.trim();
+      if (!title) { toast('أدخل اسم الهدف', true); return; }
+      data.goals = data.goals || [];
+      data.goals.unshift({ id: uid(), title, progress: Math.max(0, Math.min(100, progress)), note });
+      saveData();
+      document.getElementById('goal-title').value = '';
+      document.getElementById('goal-progress').value = '';
+      document.getElementById('goal-note').value = '';
+      renderGoals();
+    });
+
+    function renderGoals() {
+      const list = document.getElementById('goals-list');
+      const empty = document.getElementById('goals-empty');
+      list.innerHTML = '';
+      const items = data.goals || [];
+      empty.style.display = items.length ? 'none' : 'block';
+      items.forEach(g => {
+        const card = document.createElement('div');
+        card.className = 'item-card';
+        card.innerHTML = `
+          <div class="meta">${g.progress}% مكتمل</div>
+          <div class="title">${escapeHtml(g.title)}</div>
+          ${g.note ? `<div class="meta" style="margin-top:0.35rem;">${escapeHtml(g.note)}</div>` : ''}
+          <div class="progress"><span style="width:${g.progress}%"></span></div>
+          <div class="row-actions" style="margin-top: 0.65rem;">
+            <button data-act="inc">+10%</button>
+            <button data-act="del">حذف</button>
+          </div>
+        `;
+        card.querySelector('[data-act="inc"]').addEventListener('click', () => {
+          g.progress = Math.min(100, g.progress + 10); saveData(); renderGoals();
+        });
+        card.querySelector('[data-act="del"]').addEventListener('click', () => {
+          data.goals = data.goals.filter(x => x.id !== g.id); saveData(); renderGoals();
+        });
+        list.appendChild(card);
+      });
+    }
+
+    // ── Ideas ─────────────────────────────────────
+    document.getElementById('btn-add-idea').addEventListener('click', () => {
+      const title = document.getElementById('idea-title').value.trim();
+      const desc  = document.getElementById('idea-desc').value.trim();
+      if (!title) { toast('أدخل عنوان الفكرة', true); return; }
+      data.ideas = data.ideas || [];
+      data.ideas.unshift({ id: uid(), title, desc, createdAt: new Date().toISOString() });
+      saveData();
+      document.getElementById('idea-title').value = '';
+      document.getElementById('idea-desc').value = '';
+      renderIdeas();
+    });
+    function renderIdeas() {
+      const list = document.getElementById('ideas-list');
+      const empty= document.getElementById('ideas-empty');
+      list.innerHTML = '';
+      const items = data.ideas || [];
+      empty.style.display = items.length ? 'none' : 'block';
+      items.forEach(i => {
+        const card = document.createElement('div');
+        card.className = 'item-card';
+        card.innerHTML = `
+          <div class="meta">${new Date(i.createdAt).toLocaleDateString('ar-SA')}</div>
+          <div class="title">${escapeHtml(i.title)}</div>
+          ${i.desc ? `<div class="meta" style="margin-top:0.35rem; color: var(--text);">${escapeHtml(i.desc)}</div>` : ''}
+          <div class="row-actions" style="margin-top: 0.65rem;">
+            <button data-act="del">حذف</button>
+          </div>
+        `;
+        card.querySelector('[data-act="del"]').addEventListener('click', () => {
+          data.ideas = data.ideas.filter(x => x.id !== i.id); saveData(); renderIdeas();
+        });
+        list.appendChild(card);
+      });
+    }
+
+    // ── Campaigns ─────────────────────────────────
+    document.getElementById('btn-add-camp').addEventListener('click', () => {
+      const name = document.getElementById('camp-name').value.trim();
+      if (!name) { toast('أدخل اسم الحملة', true); return; }
+      data.campaigns = data.campaigns || [];
+      data.campaigns.unshift({
+        id: uid(), name,
+        channel: document.getElementById('camp-channel').value,
+        budget: parseFloat(document.getElementById('camp-budget').value) || 0,
+        status: document.getElementById('camp-status').value,
+        note: document.getElementById('camp-note').value.trim(),
+      });
+      saveData();
+      document.getElementById('camp-name').value = '';
+      document.getElementById('camp-budget').value = '';
+      document.getElementById('camp-note').value = '';
+      renderCamps();
+    });
+    function renderCamps() {
+      const list = document.getElementById('camps-list');
+      const empty= document.getElementById('camps-empty');
+      list.innerHTML = '';
+      const items = data.campaigns || [];
+      empty.style.display = items.length ? 'none' : 'block';
+      const statusMap = { planned: ['info','مخطط'], active: ['','نشط'], done: ['warn','منتهي'] };
+      items.forEach(c => {
+        const [cls, label] = statusMap[c.status] || ['','—'];
+        const card = document.createElement('div');
+        card.className = 'item-card';
+        card.innerHTML = `
+          <div class="meta">${c.channel} • ${c.budget.toFixed(0)} ر.س • <span class="pill ${cls}">${label}</span></div>
+          <div class="title">${escapeHtml(c.name)}</div>
+          ${c.note ? `<div class="meta" style="margin-top:0.35rem;">${escapeHtml(c.note)}</div>` : ''}
+          <div class="row-actions" style="margin-top: 0.65rem;">
+            <button data-act="del">حذف</button>
+          </div>
+        `;
+        card.querySelector('[data-act="del"]').addEventListener('click', () => {
+          data.campaigns = data.campaigns.filter(x => x.id !== c.id); saveData(); renderCamps();
+        });
+        list.appendChild(card);
+      });
+    }
+
+    // ── Views chart ───────────────────────────────
+    function renderViews() {
+      const days = [];
+      const today = new Date();
+      for (let i = 13; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(today.getDate() - i);
+        days.push(d.toISOString().slice(0,10));
+      }
+      const counts = days.map(d => views[d] || 0);
+      const max = Math.max(1, ...counts);
+      const chart = document.getElementById('views-chart');
+      chart.innerHTML = counts.map((n, i) => {
+        const h = (n / max) * 100;
+        const label = days[i].slice(5);
+        return `<div class="chart-bar" style="height: ${h}%;" title="${n} زيارة" data-label="${label}"></div>`;
+      }).join('');
+      const todayStr = today.toISOString().slice(0,10);
+      const total = Object.values(views).reduce((a,b) => a+b, 0);
+      const week  = counts.slice(-7).reduce((a,b) => a+b, 0);
+      document.getElementById('views-today').textContent = views[todayStr] || 0;
+      document.getElementById('views-week').textContent  = week;
+      document.getElementById('views-total').textContent = total;
+      document.getElementById('kpi-views').textContent   = total;
+    }
+
+    // ── Util ──────────────────────────────────────
+    function escapeHtml(s) {
+      return (s || '').replace(/[&<>"']/g, ch => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+      })[ch]);
+    }
+
+    function renderAll() {
+      renderKPIs();
+      renderRevChart();
+      renderTx();
+      renderBudget();
+      renderViews();
+      renderGoals();
+      renderIdeas();
+      renderCamps();
+      runCalc();
+    }
+
+    // Auto-refresh every 30s to see partner's changes
+    setInterval(async () => {
+      if (!token) return;
+      try {
+        data  = await api('GET', '/api/admin/data');
+        views = await api('GET', '/api/admin/views');
+        renderAll();
+      } catch {}
+    }, 30000);
+  </script>
+</body>
+</html>
