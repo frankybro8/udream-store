@@ -2,9 +2,13 @@
   "name": "website",
   "version": "1.0.0",
   "description": "A responsive static storefront for Udream, built with HTML, CSS, and JavaScript. Now in Arabic with cart functionality.",
-  "main": "fix-checkout.js",
+  "main": "server.js",
   "scripts": {
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "keywords": [],
   "author": "",

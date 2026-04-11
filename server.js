@@ -95,9 +95,15 @@ app.post('/api/coupon/use', (req, res) => {
 // ═══════════════════════════════════════════════════════════
 // Private admin dashboard API (shared data between partners)
 // ═══════════════════════════════════════════════════════════
-const ADMIN_DATA_FILE  = path.join(__dirname, 'admin-data.json');
-const ADMIN_VIEWS_FILE = path.join(__dirname, 'admin-views.json');
-const ADMIN_PASS_FILE  = path.join(__dirname, 'admin-pass.json');
+// DATA_DIR controls where private files live.
+// - Local dev: defaults to project folder (__dirname)
+// - Railway: set DATA_DIR=/data and mount a Volume at /data
+const DATA_DIR = process.env.DATA_DIR || __dirname;
+try { fs.mkdirSync(DATA_DIR, { recursive: true }); } catch {}
+
+const ADMIN_DATA_FILE  = path.join(DATA_DIR, 'admin-data.json');
+const ADMIN_VIEWS_FILE = path.join(DATA_DIR, 'admin-views.json');
+const ADMIN_PASS_FILE  = path.join(DATA_DIR, 'admin-pass.json');
 
 function sha256(text) {
   return crypto.createHash('sha256').update(text).digest('hex');
@@ -230,7 +236,8 @@ app.get('/api/admin/views', requireAdminAuth, (req, res) => {
 });
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Udream server running on http://localhost:${PORT}`);
-  console.log(`Admin dashboard: http://localhost:${PORT}/udream-admin-8f2k.html`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Udream server running on port ${PORT}`);
+  console.log(`Data directory: ${DATA_DIR}`);
+  console.log(`Admin dashboard: /udream-admin-8f2k.html`);
 });
